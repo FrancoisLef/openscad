@@ -20,3 +20,9 @@ Followed [this](https://github.com/revarbat/BOSL/wiki) wiki installation guide.
 <p align="center">
   <img src="docs/img/netatmo-relay.png" />
 </p>
+
+### Support grille
+
+<p align="center">
+  <img src="docs/img/support-grille.png" />
+</p>
