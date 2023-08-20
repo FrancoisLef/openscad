@@ -26,8 +26,8 @@ module pin_headers(cols, rows) {
       translate([ w * x, w * y, 0 ]) {
         union() {
           color("black") cube([ w, w, h ]);
-          // color("gold")  translate([(w - p) / 2, (w - p)
-          // / 2, -3]) cube([p, p, 11.54]);
+          color("gold")  translate([(w - p) / 2, (w - p)
+          / 2, -3]) cube([p, p, 11.54]);
         }
       }
     }
