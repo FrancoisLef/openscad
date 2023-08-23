@@ -2,16 +2,24 @@ include <BOSL/constants.scad>
 use <BOSL/transforms.scad>
 use <BOSL/shapes.scad>
 
-// Cache lumières
-tube(
-  h=30, // Hauteur du tube
-  id=105, // Diametre interne du tube
-  wall=5 // Épaisseur du tube
+// Lèvre de maintien
+color("red") up(12) tube(
+  h=3, // Hauteur du tube
+  id=90, // Diametre interne du tube
+  wall=8 // Épaisseur du tube
 );
 
-// Lèvre de maintien
-up(30) tube(
-  h=5, // Hauteur du tube
-  id=95, // Diametre interne du tube
-  wall=10 // Épaisseur du tube
-);
+difference() {
+  // Cache lumières
+  color("blue") tube(
+    h=12, // Hauteur du tube
+    id=100, // Diametre interne du tube
+    wall=3 // Épaisseur du tube
+  );
+
+  color("green") down(.1) pie_slice(
+    ang=45,
+    d=110,
+    h=10
+  );
+}
