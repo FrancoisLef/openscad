@@ -21,6 +21,12 @@ Followed [this](https://github.com/revarbat/BOSL/wiki) wiki installation guide.
   <img src="docs/img/netatmo-relay.png" />
 </p>
 
+### Brother spool holder
+
+<p align="center">
+  <img src="docs/img/brother-spool-holder.png" />
+</p>
+
 ### Support grille
 
 <p align="center">
