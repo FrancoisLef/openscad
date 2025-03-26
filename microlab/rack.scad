@@ -1,160 +1,95 @@
-include <BOSL/constants.scad>
-include <../constants.scad>
-use <BOSL/transforms.scad>
-use <BOSL/shapes.scad>
-
-RACK_BASE_U = 0.5;
-
-rack_panel_height = 22;
-rack_panel_width = 148;
-rack_panel_thickness = 3;
-
-rack_unit_width = 111.5;
-rack_unit_height = 2;
-rack_support_width = 2;
-rack_margin_left = (rack_panel_width / 2 - rack_unit_width / 2);
+include <BOSL2/std.scad>
 
 /**
- * Parametric rack panel module
- * - U: Number of rack units (U) to cover (0.5, 1, 1.5, 2)
+ * Circle resolution constants
+ *
+ * The $fa, $fs, and $fn special variables control the number of facets used to generate an arc:
+ * $fa: Minimum angle for a fragment. Default value is 12 (i.e. 30 fragments for a full circle)
+ * $fs: Minimum size of a fragment. Default value is 2 (so very small circles have a smaller number of fragments)
+ * $fn: Number of fragments. Default value is 0 (i.e. automatic calculation based on the circle radius and the $fa and
+ * $fs values)
  */
-module rack_panel(U=0.5) {
-  // Check that U is a valid value
-  assert(U == 0.5 || U == 1 || U == 1.5 || U == 2, "Error: U must be 0.5, 1, 1.5, or 2");
+$fa = 1;
+$fs = $preview ? 1 : 0.1;
+$slop = 0.01;
 
-  // When U is -> count is
-  // 0.5 -> 1
-  // 1   -> 2
-  // 1.5 -> 3
-  // 2   -> 4
-  U_count = U / RACK_BASE_U;
+/**
+ * Parametric rack module plate
+ * - length: Length of the plate (default is 90mm)
+ * - anchor: Anchor point of the plate (default is BOTTOM + LEFT + FRONT)
+ **/
+module rack_plate(length = 90, anchor = TOP + LEFT + FRONT)
+{
+    __PLATE_WIDTH = 112;
+    __PLATE_THICKNESS = 2;
 
-  rack_mounting_hole_diameter = 3;
-  rack_mounting_hole_padding = 9;
+    cuboid([ __PLATE_WIDTH, length, __PLATE_THICKNESS ], rounding = __PLATE_THICKNESS,
+           edges = [ BACK + LEFT, BACK + RIGHT ], anchor = anchor) children();
+}
 
-  left(rack_margin_left) difference() {
-    // Front panel
+/**
+ * Parametric rack module panel
+ * - u: Number of rack units (U) to cover (0.5, 1, 1.5, 2)
+ * - anchor: Anchor point of the plate (default is BOTTOM + BACK)
+ **/
+module rack_panel(u = 0.5, length = 90, anchor = BOTTOM + BACK)
+{
+    assert(u == 0.5 || u == 1 || u == 1.5 || u == 2, "Error: u must be 0.5, 1, 1.5, or 2");
+
+    /**
+     * Internal variables
+     */
+    // When u is 0.5 -> 1, 1 -> 2, 1.5 -> 3, 2 -> 4
+    __U_DEFAULT = 0.5;
+    __U_MULTIPLE = u / __U_DEFAULT;
+    __PANEL_WIDTH = 148;
+    __PANEL_HEIGHT = 22;
+    __PANEL_THICKNESS = 3;
+
+    __PANEL_SUPPORT_THICKNESS = 2;
+
+    __PANEL_HOLE_DIAMETER = 3 + get_slop();
+    __PANEL_HOLE_PADDING = 9;
+
+    __PANEL_EAR_WIDTH = 18;
+
+    // Remove the holes from the panel
+    diff("holes")
     {
-      cuboid(
-        [
-          rack_panel_width,
-          rack_panel_thickness,
-          // Compute the rack height based on U: 22mm is the base height for U=0.5
-          rack_panel_height * U_count
-        ],
-        align=V_ALLPOS,
-        edges=EDGE_TOP_LF+ // Top left
-              EDGE_TOP_RT+ // Top right
-              EDGE_BOT_LF+ // Bottom left
-              EDGE_BOT_RT, // Bottom right
-        fillet=rack_panel_thickness
-      );
-    }
+        // Draw the panel
+        cuboid([ __PANEL_WIDTH, __PANEL_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ], rounding = __PANEL_THICKNESS,
+               edges = [ TOP + LEFT, TOP + RIGHT, BOTTOM + LEFT, BOTTOM + RIGHT ], anchor = anchor)
+        {
+            // Copy and spread holes along the Z axis up based on U size
+            zcopies(n = __U_MULTIPLE, spacing = __PANEL_HEIGHT, sp = 0)
+                // Copy and spread 2 holes along the X axis
+                xcopies(n = 2, spacing = __PANEL_WIDTH - __PANEL_HOLE_DIAMETER - __PANEL_HOLE_PADDING * 2, sp = 0)
+                // Center the hole vertically and add a left padding
+                position(BOTTOM + LEFT) up(__PANEL_HEIGHT / 2) right(__PANEL_HOLE_PADDING)
+                // Draw the hole on the left of the panel
+                tag("holes") cylinder(d = __PANEL_HOLE_DIAMETER, h = __PANEL_THICKNESS + get_slop(), orient = BACK,
+                                      anchor = LEFT);
 
-    // Mounting holes
-    {
-      // Center vertically
-      up((rack_panel_height / 2) - (rack_mounting_hole_diameter / 2)) {
+            xcopies(n = 2, spacing = __PANEL_WIDTH - __PANEL_EAR_WIDTH * 2 - __PANEL_SUPPORT_THICKNESS, sp = 0)
+                position(LEFT + BOTTOM + BACK) right(__PANEL_EAR_WIDTH) union()
+            {
+                cuboid([ __PANEL_SUPPORT_THICKNESS, __PANEL_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ],
+                       anchor = LEFT + BOTTOM + FRONT);
 
-        // Left padding
-        right(rack_mounting_hole_padding) {
-
-          // Copy and spread holes along the Z axis up based on U size
-          zspread(
-            spacing=rack_panel_height,
-            // Compute the number of holes based on U: 1 is the base number for U=0.5
-            n=U_count,
-            sp=true // spread on a line up from starting position
-          ) {
-
-            // Copy and spread holes along the X axis
-            xspread(
-              spacing=rack_panel_width - rack_mounting_hole_diameter - rack_mounting_hole_padding * 2,
-              n=2,
-              sp=true
-            ) {
-
-              // Draw the hole
-              forward(tolerance) ycyl(
-                l=rack_panel_thickness + tolerance * 2,
-                d=rack_mounting_hole_diameter,
-                align=V_ALLPOS
-              );
+                back(__PANEL_THICKNESS)
+                    wedge([ __PANEL_SUPPORT_THICKNESS, length * 0.7, __PANEL_HEIGHT * __U_MULTIPLE ],
+                          anchor = LEFT + BOTTOM + FRONT);
             }
-          }
+
+            // Render children
+            children();
         }
-      }
     }
-  }
 }
 
-module rack_unit(U=0.5, length=90) {
-  // Check that U is a valid value
-  assert(U == 0.5 || U == 1 || U == 1.5 || U == 2, "Error: U must be 0.5, 1, 1.5, or 2");
-
-  // When U is -> count is
-  // 0.5 -> 1
-  // 1   -> 2
-  // 1.5 -> 3
-  // 2   -> 4
-  U_count = U / RACK_BASE_U;
-
-  rack_unit_length = length;
-
-  // Draw rack unit
-  cuboid(
-    [
-      rack_unit_width,
-      rack_unit_length,
-      rack_unit_height
-    ],
-    align=V_ALLPOS,
-    edges=EDGE_BK_LF+ // Back left
-          EDGE_BK_RT, // Back right
-    fillet=rack_unit_height
-  );
-
-  // Draw support
-  xspread(
-    spacing=rack_unit_width - rack_unit_height,
-    n=2,
-    sp=true
-  ) {
-    cuboid(
-      [
-        rack_support_width,
-        rack_panel_thickness,
-        rack_panel_height * U_count
-      ],
-      align=V_ALLPOS
-    );
-
-    back(rack_panel_thickness) right_triangle(
-      [
-        rack_support_width,
-        rack_unit_length * 0.7,
-        rack_panel_height * U_count
-      ],
-      orient=ORIENT_X,
-      align=V_ALLPOS
-    );
-  }
-
-  children();
-}
-
-// Example usage:
-// rack_unit() {
-//   difference() {
-//     rack_panel();
-//     forward(tolerance) cuboid(
-//       [
-//         rack_unit_width,
-//         rack_panel_width + tolerance,
-//         rack_panel_height + tolerance
-//       ],
-//       align=V_ALLPOS
-//     );
-//   }
+// Example:
+// rack_plate()
+// {
+//     position(BOTTOM + FRONT) rack_panel();
+//     position(LEFT + FRONT) cuboid(50, anchor = BOTTOM + LEFT + FRONT);
 // }
-
