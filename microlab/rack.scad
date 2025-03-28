@@ -32,7 +32,7 @@ module rack_plate(length = 90, anchor = TOP + LEFT + FRONT)
  * - u: Number of rack units (U) to cover (0.5, 1, 1.5, 2)
  * - anchor: Anchor point of the plate (default is BOTTOM + BACK)
  **/
-module rack_panel(u = 0.5, length = 90, anchor = BOTTOM + BACK)
+module rack_panel(u = 0.5, support = true, length = 80, anchor = BOTTOM + BACK)
 {
     assert(u == 0.5 || u == 1 || u == 1.5 || u == 2, "Error: u must be 0.5, 1, 1.5, or 2");
 
@@ -50,6 +50,7 @@ module rack_panel(u = 0.5, length = 90, anchor = BOTTOM + BACK)
 
     __PANEL_HOLE_DIAMETER = 3 + get_slop();
     __PANEL_HOLE_PADDING = 9;
+    __PANEL_HOLE_Z_COPIES = support ? __U_MULTIPLE : 2;
 
     __PANEL_EAR_WIDTH = 18;
 
@@ -57,11 +58,11 @@ module rack_panel(u = 0.5, length = 90, anchor = BOTTOM + BACK)
     diff("holes")
     {
         // Draw the panel
-        cuboid([ __PANEL_WIDTH, __PANEL_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ], rounding = __PANEL_THICKNESS,
+        cuboid([ __PANEL_WIDTH, __PANEL_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ], rounding = __PANEL_THICKNESS / 2,
                edges = [ TOP + LEFT, TOP + RIGHT, BOTTOM + LEFT, BOTTOM + RIGHT ], anchor = anchor)
         {
             // Copy and spread holes along the Z axis up based on U size
-            zcopies(n = __U_MULTIPLE, spacing = __PANEL_HEIGHT, sp = 0)
+            zcopies(n = __PANEL_HOLE_Z_COPIES, spacing = __PANEL_HEIGHT * (__U_MULTIPLE - 1), sp = 0)
                 // Copy and spread 2 holes along the X axis
                 xcopies(n = 2, spacing = __PANEL_WIDTH - __PANEL_HOLE_DIAMETER - __PANEL_HOLE_PADDING * 2, sp = 0)
                 // Center the hole vertically and add a left padding
@@ -70,15 +71,20 @@ module rack_panel(u = 0.5, length = 90, anchor = BOTTOM + BACK)
                 tag("holes") cylinder(d = __PANEL_HOLE_DIAMETER, h = __PANEL_THICKNESS + get_slop(), orient = BACK,
                                       anchor = LEFT);
 
-            xcopies(n = 2, spacing = __PANEL_WIDTH - __PANEL_EAR_WIDTH * 2 - __PANEL_SUPPORT_THICKNESS, sp = 0)
-                position(LEFT + BOTTOM + BACK) right(__PANEL_EAR_WIDTH) union()
+            if (support)
             {
-                cuboid([ __PANEL_SUPPORT_THICKNESS, __PANEL_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ],
-                       anchor = LEFT + BOTTOM + FRONT);
-
-                back(__PANEL_THICKNESS)
-                    wedge([ __PANEL_SUPPORT_THICKNESS, length * 0.7, __PANEL_HEIGHT * __U_MULTIPLE ],
-                          anchor = LEFT + BOTTOM + FRONT);
+                // Copy and spread 2 supports along the X axis
+                xcopies(n = 2, spacing = __PANEL_WIDTH - __PANEL_EAR_WIDTH * 2 - __PANEL_SUPPORT_THICKNESS, sp = 0)
+                    position(LEFT + BOTTOM + BACK) right(__PANEL_EAR_WIDTH) union()
+                {
+                    // Draw the first part of the support (rectangle)
+                    cuboid([ __PANEL_SUPPORT_THICKNESS, __PANEL_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ],
+                           anchor = LEFT + BOTTOM + FRONT);
+                    // Draw the second part of the support (triangle)
+                    back(__PANEL_THICKNESS)
+                        wedge([ __PANEL_SUPPORT_THICKNESS, length * 0.7, __PANEL_HEIGHT * __U_MULTIPLE ],
+                              anchor = LEFT + BOTTOM + FRONT);
+                }
             }
 
             // Render children
@@ -87,9 +93,14 @@ module rack_panel(u = 0.5, length = 90, anchor = BOTTOM + BACK)
     }
 }
 
-// Example:
+// Examples:
+
+// Complete rack module
 // rack_plate()
 // {
 //     position(BOTTOM + FRONT) rack_panel();
 //     position(LEFT + FRONT) cuboid(50, anchor = BOTTOM + LEFT + FRONT);
 // }
+
+// Panel only
+// rack_panel(1.5, support = false);
