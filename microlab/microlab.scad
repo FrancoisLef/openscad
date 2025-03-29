@@ -1,47 +1,52 @@
 include <BOSL2/std.scad>
+include <constants.scad>
 
-/**
- * Circle resolution constants
- *
- * The $fa, $fs, and $fn special variables control the number of facets used to generate an arc:
- * $fa: Minimum angle for a fragment. Default value is 12 (i.e. 30 fragments for a full circle)
- * $fs: Minimum size of a fragment. Default value is 2 (so very small circles have a smaller number of fragments)
- * $fn: Number of fragments. Default value is 0 (i.e. automatic calculation based on the circle radius and the $fa and
- * $fs values)
- */
-$fa = 1;
-$fs = $preview ? 1 : 0.1;
-$slop = 0.01;
+// ------------------------------------------------------------------------
+// Usage examples:
+//
+// microlab_plate(length = 80) {
+//    position(BOTTOM + FRONT) microlab_panel(u = 1, lenght = 80);
+// }
+// ------------------------------------------------------------------------
 
-/**
- * Parametric rack module plate
- * - length: Length of the plate (default is 90mm)
- * - anchor: Anchor point of the plate (default is BOTTOM + LEFT + FRONT)
- **/
-module rack_plate(length = 90, anchor = TOP + LEFT + FRONT)
+//------------------------------------------------------------------------
+// Microlab plate
+//------------------------------------------------------------------------
+// This module is used to create a plate unit for the Microlab rack system.
+// The plate width will fill the entire width of the rack, and the length is adjustable.
+//
+// @param length: Length of the plate (default is 90mm)
+// @param anchor: Anchor point of the plate (default is BOTTOM + LEFT + FRONT)
+//------------------------------------------------------------------------
+module microlab_plate(length = 90, anchor = TOP + LEFT + FRONT)
 {
     __PLATE_WIDTH = 112;
     __PLATE_THICKNESS = 2;
+    __PLATE_SIZE = [ __PLATE_WIDTH, length, __PLATE_THICKNESS ];
 
-    cuboid([ __PLATE_WIDTH, length, __PLATE_THICKNESS ], rounding = __PLATE_THICKNESS,
-           edges = [ BACK + LEFT, BACK + RIGHT ], anchor = anchor) children();
+    cuboid(__PLATE_SIZE, rounding = __PLATE_THICKNESS, edges = [ BACK + LEFT, BACK + RIGHT ], anchor = anchor)
+    {
+        children();
+    }
 }
 
-/**
- * Parametric rack module panel
- * - u: Number of rack units (U) to cover (0.5, 1, 1.5, 2)
- * - anchor: Anchor point of the plate (default is BOTTOM + BACK)
- **/
-module rack_panel(u = 0.5, support = true, length = 80, anchor = BOTTOM + BACK)
+//------------------------------------------------------------------------
+// Microlab panel
+//------------------------------------------------------------------------
+// This module is used to create a panel for the Microlab rack system.
+// The panel height is adjustable based on the number of rack units (U) to cover.
+// You can also add supports to the panel that connects with the plate.
+//
+// @param u: Number of rack units (U) to cover (0.5, 1, 1.5, 2)
+// @param support: Whether to add support (default is true)
+// @param anchor: Anchor point of the plate (default is BOTTOM + LEFT + FRONT)
+//------------------------------------------------------------------------
+module microlab_panel(u = 0.5, support = true, length = 80, anchor = BOTTOM + BACK)
 {
     assert(u == 0.5 || u == 1 || u == 1.5 || u == 2, "Error: u must be 0.5, 1, 1.5, or 2");
 
-    /**
-     * Internal variables
-     */
-    // When u is 0.5 -> 1, 1 -> 2, 1.5 -> 3, 2 -> 4
     __U_DEFAULT = 0.5;
-    __U_MULTIPLE = u / __U_DEFAULT;
+    __U_MULTIPLE = u / __U_DEFAULT; // When u is 0.5 -> 1, 1 -> 2, 1.5 -> 3, 2 -> 4
     __PANEL_WIDTH = 148;
     __PANEL_HEIGHT = 22;
     __PANEL_THICKNESS = 3;
@@ -92,15 +97,3 @@ module rack_panel(u = 0.5, support = true, length = 80, anchor = BOTTOM + BACK)
         }
     }
 }
-
-// Examples:
-
-// Complete rack module
-// rack_plate()
-// {
-//     position(BOTTOM + FRONT) rack_panel();
-//     position(LEFT + FRONT) cuboid(50, anchor = BOTTOM + LEFT + FRONT);
-// }
-
-// Panel only
-// rack_panel(1.5, support = false);

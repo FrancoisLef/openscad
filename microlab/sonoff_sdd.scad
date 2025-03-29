@@ -1,6 +1,7 @@
+
 include <BOSL2/std.scad>
 
-include <rack.scad>
+include <microlab.scad>
 
 SONOFF_BODY_WIDTH = 26;
 SONOFF_BODY_LENGTH = 52;
@@ -68,11 +69,11 @@ module ssd_support()
     left(2) cuboid([ 44, 48, 3 ], anchor = RIGHT + BOTTOM + FRONT);
 }
 
-rack_plate(70)
+microlab_plate(70)
 {
     diff("sonoff")
     {
-        position(BOTTOM + FRONT) rack_panel();
+        position(BOTTOM + FRONT) microlab_panel(length = 70);
         position(LEFT + FRONT + TOP) sonoff_support();
         position(LEFT + FRONT + TOP) right(2 + $slop) up($slop) back($slop) tag("sonoff") sonoff();
     }
