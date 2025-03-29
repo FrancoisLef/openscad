@@ -2,35 +2,44 @@ include <BOSL2/std.scad>
 
 include <rack.scad>
 
+SONOFF_BODY_WIDTH = 26;
+SONOFF_BODY_LENGTH = 52;
+SONOFF_BODY_HEIGHT = 14;
+SONOFF_BODY_SIZE = [ SONOFF_BODY_WIDTH, SONOFF_BODY_LENGTH, SONOFF_BODY_HEIGHT ];
+
+SONOFF_ANTENNA_CONNECTOR = 10;
+SONOFF_ANTENNA_LENGTH = 10;
+SONOFF_ANTENNA_SIZE = [ SONOFF_ANTENNA_CONNECTOR, SONOFF_ANTENNA_LENGTH, SONOFF_ANTENNA_CONNECTOR ];
+
+SONOFF_USB_WIDTH = 12;
+SONOFF_USB_LENGTH = 14;
+SONOFF_USB_HEIGHT = 5;
+SONOFF_USB_SIZE = [ SONOFF_USB_WIDTH, SONOFF_USB_LENGTH, SONOFF_USB_HEIGHT ];
+
 module sonoff()
 {
-    __SONOFF_BODY_WIDTH = 26;
-    __SONOFF_BODY_LENGTH = 52;
-    __SONOFF_BODY_HEIGHT = 14;
-
-    __ANTENNA_CONNECTOR = 10;
-    __ANTENNA_LENGTH = 35;
-
-    __USB_WIDTH = 12;
-    __USB_LENGTH = 14;
-    __USB_HEIGHT = 5;
-
     // Body
-    back($slop) right(2 + $slop)
-        cuboid([ __SONOFF_BODY_WIDTH, __SONOFF_BODY_LENGTH, __SONOFF_BODY_HEIGHT ], anchor = LEFT + BOTTOM + FRONT)
+    cuboid(SONOFF_BODY_SIZE, anchor = LEFT + BOTTOM + FRONT)
     {
         // Antenna
-        position(FRONT + BOTTOM)
-            cuboid([ __ANTENNA_CONNECTOR, __ANTENNA_LENGTH, __ANTENNA_CONNECTOR ], anchor = BACK + BOTTOM);
+        position(FRONT + BOTTOM) up(1)
+            cuboid(SONOFF_ANTENNA_SIZE, rounding = 2,
+                   edges = [ LEFT + TOP, LEFT + BOTTOM, RIGHT + TOP, RIGHT + BOTTOM ], anchor = BACK + BOTTOM);
 
-        // USB connector
-        position(BACK + BOTTOM) up(3) cuboid([ __USB_WIDTH, __USB_LENGTH, __USB_HEIGHT ], anchor = FRONT + BOTTOM);
-    }
+        // USB
+        position(BACK + BOTTOM) up(3)
+            cuboid(SONOFF_USB_SIZE, rounding = .2, edges = [ LEFT + TOP, LEFT + BOTTOM, RIGHT + TOP, RIGHT + BOTTOM ],
+                   anchor = FRONT + BOTTOM);
+    };
 }
 
 module sonoff_support()
 {
-    back($slop) right(2 + $slop) cuboid([ 29, 55, 7.5 ], anchor = LEFT + BOTTOM + FRONT);
+    right(28)
+        cuboid([ 1, SONOFF_BODY_LENGTH + 3, 5 ], rounding = 1, edges = [BACK + RIGHT], anchor = LEFT + BOTTOM + FRONT)
+        // Left turn
+        position(BACK + LEFT + TOP)
+            cuboid([ SONOFF_BODY_WIDTH, 1, 5 ], rounding = 1, edges = [TOP + LEFT], anchor = BACK + RIGHT + TOP);
 }
 
 module usb_expansion()
@@ -59,32 +68,25 @@ module ssd_support()
     left(2) cuboid([ 44, 48, 3 ], anchor = RIGHT + BOTTOM + FRONT);
 }
 
-rack_plate()
+rack_plate(70)
 {
-    difference()
+    diff("sonoff")
     {
-        // Show panel
         position(BOTTOM + FRONT) rack_panel();
-
-        position(LEFT + FRONT + TOP)
-        {
-            // Remove sonoff
-            sonoff();
-            // Remove USB expansion
-            usb_expansion();
-        }
+        position(LEFT + FRONT + TOP) sonoff_support();
+        position(LEFT + FRONT + TOP) right(2 + $slop) up($slop) back($slop) tag("sonoff") sonoff();
     }
 
-    position(RIGHT + FRONT + TOP) difference()
-    {
-        ssd_support();
-        ssd();
-    }
+    // position(RIGHT + FRONT + TOP) difference()
+    // {
+    //     ssd_support();
+    //     ssd();
+    // }
 
-    position(LEFT + FRONT + TOP) difference()
-    {
-        // Show sonoff support
-        sonoff_support();
-        sonoff();
-    }
+    // position(LEFT + FRONT + TOP) difference()
+    // {
+    //     // Show sonoff support
+    //     sonoff_support();
+    //     sonoff();
+    // }
 }
