@@ -39,9 +39,10 @@ module microlab_plate(length = 90, anchor = TOP + LEFT + FRONT)
 //
 // @param u: Number of rack units (U) to cover (0.5, 1, 1.5, 2)
 // @param support: Whether to add support (default is true)
+// @param thin: Whether to make the panel thinner (2mm instead of 3mm thick) (default is true)
 // @param anchor: Anchor point of the plate (default is BOTTOM + LEFT + FRONT)
 //------------------------------------------------------------------------
-module microlab_panel(u = 0.5, support = true, length = 80, anchor = BOTTOM + BACK)
+module microlab_panel(u = 0.5, length = 80, support = true, thin = true, anchor = BOTTOM + BACK)
 {
     assert(u == 0.5 || u == 1 || u == 1.5 || u == 2, "Error: u must be 0.5, 1, 1.5, or 2");
 
@@ -66,6 +67,11 @@ module microlab_panel(u = 0.5, support = true, length = 80, anchor = BOTTOM + BA
         cuboid([ __PANEL_WIDTH, __PANEL_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ], rounding = __PANEL_THICKNESS / 2,
                edges = [ TOP + LEFT, TOP + RIGHT, BOTTOM + LEFT, BOTTOM + RIGHT ], anchor = anchor)
         {
+            if (thin) {
+                // Reduce the thickness of the panel in the middle by 1mm
+                position(BACK + BOTTOM + LEFT) fwd(1 - get_slop()) up(get_slop()) tag("holes") right(__PANEL_EAR_WIDTH + __PANEL_SUPPORT_THICKNESS) cuboid([__PANEL_WIDTH - __PANEL_EAR_WIDTH * 2 - __PANEL_SUPPORT_THICKNESS * 2, 1, __PANEL_HEIGHT * __U_MULTIPLE], anchor = FRONT + LEFT + BOTTOM);
+            }
+
             // Copy and spread holes along the Z axis up based on U size
             zcopies(n = __PANEL_HOLE_Z_COPIES, spacing = __PANEL_HEIGHT * (__U_MULTIPLE - 1), sp = 0)
                 // Copy and spread 2 holes along the X axis
