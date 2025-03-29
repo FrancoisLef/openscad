@@ -41,8 +41,12 @@ module sonoff_zigbee_3_0_dongle(antenna_extension = true)
             if (antenna_extension)
             {
                 color_this("black") position(FRONT)
-                    back(__ANTENNA_CONNECTOR_LENGTH - __ANTENNA_CONNECTOR_VISIBLE_LENGTH) ycyl(
-                        d = __ANTENNA_EXTENSION_DIAMETER, h = __ANTENNA_EXTENSION_LENGTH, rounding1 = 5, anchor = BACK);
+                    back(__ANTENNA_CONNECTOR_LENGTH - __ANTENNA_CONNECTOR_VISIBLE_LENGTH)
+                    // Extension straight
+                    ycyl(d = __ANTENNA_EXTENSION_DIAMETER, h = 21, anchor = BACK)
+                    // Extension antenna
+                    position(FRONT + BOTTOM) color_this("black")
+                        zcyl(d = __ANTENNA_EXTENSION_DIAMETER, h = 87, rounding2 = 5, anchor = BOTTOM + BACK);
             }
         }
 
