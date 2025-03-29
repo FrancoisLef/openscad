@@ -1,8 +1,8 @@
-
 include <BOSL2/std.scad>
 
 include <microlab.scad>
 include <sonoff.scad>
+include <ssd.scad>
 
 module sonoff_support()
 {
@@ -15,8 +15,12 @@ module sonoff_support()
 
 microlab_plate(70)
 {
-    diff("sonoff") {
+    diff()
+    {
         position(BOTTOM + FRONT) microlab_panel(length = 70);
-        position(TOP + FRONT + LEFT) tag("sonoff") fwd(get_slop()) up(get_slop()) right(2 + get_slop()) sonoff_zigbee_3_0_dongle();
+        position(TOP + FRONT + LEFT) tag("sonoff") fwd(get_slop()) up(get_slop()) right(2 + get_slop())
+            sonoff_zigbee_3_0_dongle();
     }
+
+    position(TOP + RIGHT + FRONT) ssd_2230(anchor = BOTTOM + RIGHT + FRONT);
 }
