@@ -12,7 +12,7 @@ include <constants.scad>
 //
 // ssd_2230();
 // ------------------------------------------------------------------------
-module ssd_2230(anchor = BOTTOM + LEFT + FRONT)
+module ssd_2230(usb_cable = true, anchor = BOTTOM + LEFT + FRONT)
 {
     __BODY_WIDTH = 46;
     __BODY_LENGTH = 46;
@@ -31,8 +31,8 @@ module ssd_2230(anchor = BOTTOM + LEFT + FRONT)
     __USB_CABLE_HEIGHT = 8;
 
     // Body
-    ghost() cuboid([ __BODY_WIDTH, __BODY_LENGTH, __BODY_HEIGHT ], rounding = 6,
-                   edges = [ LEFT + TOP, LEFT + BOTTOM, RIGHT + TOP, RIGHT + BOTTOM ], anchor = anchor)
+    color_this("white") cuboid([ __BODY_WIDTH, __BODY_LENGTH, __BODY_HEIGHT ], rounding = 6,
+                               edges = [ LEFT + TOP, LEFT + BOTTOM, RIGHT + TOP, RIGHT + BOTTOM ], anchor = anchor)
     {
         // Heatsink
         position(TOP) color_this("silver") down(__HEATSINK_HEIGHT - get_slop())
@@ -44,9 +44,12 @@ module ssd_2230(anchor = BOTTOM + LEFT + FRONT)
             cuboid([ __USB_WIDTH, __USB_LENGTH, __USB_HEIGHT ], rounding = 2,
                    edges = [ LEFT + TOP, LEFT + BOTTOM, RIGHT + TOP, RIGHT + BOTTOM ], anchor = FRONT);
 
-        // USB Type-C cable
-        position(FRONT) color_this("dimgray") fwd(get_slop())
-            cuboid([ __USB_CABLE_WIDTH, __USB_CABLE_LENGTH, __USB_CABLE_HEIGHT ], rounding = 2,
-                   edges = [ LEFT + TOP, LEFT + BOTTOM, RIGHT + TOP, RIGHT + BOTTOM ], anchor = BACK);
+        if (usb_cable)
+        {
+            // USB Type-C cable
+            position(FRONT) color_this("black") fwd(get_slop())
+                cuboid([ __USB_CABLE_WIDTH, __USB_CABLE_LENGTH, __USB_CABLE_HEIGHT ], rounding = 2,
+                       edges = [ LEFT + TOP, LEFT + BOTTOM, RIGHT + TOP, RIGHT + BOTTOM ], anchor = BACK);
+        }
     };
 }

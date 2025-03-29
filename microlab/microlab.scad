@@ -61,15 +61,22 @@ module microlab_panel(u = 0.5, length = 80, support = true, thin = true, anchor 
     __PANEL_EAR_WIDTH = 18;
 
     // Remove the holes from the panel
-    diff("holes")
+    diff("microlab_cutout")
     {
         // Draw the panel
         cuboid([ __PANEL_WIDTH, __PANEL_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ], rounding = __PANEL_THICKNESS / 2,
                edges = [ TOP + LEFT, TOP + RIGHT, BOTTOM + LEFT, BOTTOM + RIGHT ], anchor = anchor)
         {
-            if (thin) {
+            if (thin)
+            {
                 // Reduce the thickness of the panel in the middle by 1mm
-                position(BACK + BOTTOM + LEFT) fwd(1 - get_slop()) up(get_slop()) tag("holes") right(__PANEL_EAR_WIDTH + __PANEL_SUPPORT_THICKNESS) cuboid([__PANEL_WIDTH - __PANEL_EAR_WIDTH * 2 - __PANEL_SUPPORT_THICKNESS * 2, 1, __PANEL_HEIGHT * __U_MULTIPLE], anchor = FRONT + LEFT + BOTTOM);
+                position(BACK + BOTTOM + LEFT) fwd(1 - get_slop()) up(get_slop()) tag("microlab_cutout")
+                    right(__PANEL_EAR_WIDTH + __PANEL_SUPPORT_THICKNESS) cuboid(
+                        [
+                            __PANEL_WIDTH - __PANEL_EAR_WIDTH * 2 - __PANEL_SUPPORT_THICKNESS * 2, 1, __PANEL_HEIGHT *
+                            __U_MULTIPLE
+                        ],
+                        anchor = FRONT + LEFT + BOTTOM);
             }
 
             // Copy and spread holes along the Z axis up based on U size
@@ -79,8 +86,8 @@ module microlab_panel(u = 0.5, length = 80, support = true, thin = true, anchor 
                 // Center the hole vertically and add a left padding
                 position(BOTTOM + LEFT) up(__PANEL_HEIGHT / 2) right(__PANEL_HOLE_PADDING)
                 // Draw the hole on the left of the panel
-                tag("holes") cylinder(d = __PANEL_HOLE_DIAMETER, h = __PANEL_THICKNESS + get_slop(), orient = BACK,
-                                      anchor = LEFT);
+                tag("microlab_cutout") cylinder(d = __PANEL_HOLE_DIAMETER, h = __PANEL_THICKNESS + get_slop(),
+                                                orient = BACK, anchor = LEFT);
 
             if (support)
             {

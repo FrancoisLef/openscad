@@ -15,12 +15,12 @@ module sonoff_support()
 
 microlab_plate(70)
 {
-    diff()
+    diff("plus")
     {
         position(BOTTOM + FRONT) microlab_panel(length = 70);
-        position(TOP + FRONT + LEFT) tag("sonoff") fwd(get_slop()) up(get_slop()) right(2 + get_slop())
+        position(TOP + FRONT + LEFT) tag("minus") fwd(.9) up(get_slop()) right(2 + get_slop())
             sonoff_zigbee_3_0_dongle();
+        position(TOP + RIGHT + FRONT) tag("minus") fwd(.9) up(get_slop()) left(2 + get_slop())
+            ssd_2230(anchor = BOTTOM + RIGHT + FRONT);
     }
-
-    position(TOP + RIGHT + FRONT) ssd_2230(anchor = BOTTOM + RIGHT + FRONT);
 }
