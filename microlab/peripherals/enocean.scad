@@ -1,46 +1,51 @@
+include <../constants.scad>
 include <BOSL2/std.scad>
-include <constants.scad>
 
 //------------------------------------------------------------------------
 // Enocean TCM310 USB Dongle
 //------------------------------------------------------------------------
 // This module is used to create an Enocean TCM 310 USB Dongle model.
 //
-// @param anchor: Anchor point of the dongle (default is BOTTOM + LEFT + FRONT)
+// @param extension: Whether to include the antenna extension (default is true)
+// @param diameter: Diameter of the antenna connector (default is false)
+// @param anchor: Anchor point of the dongle (default is center)
 //------------------------------------------------------------------------
-// Example usage:
-//
-// enocean_tcm_310();
-// enocean_tcm_310(antenna_extension = false);
-// ------------------------------------------------------------------------
-module enocean_tcm_310(antenna_extension = true, anchor = BOTTOM + LEFT + FRONT)
+module enocean_tcm_310(extension = true, diameter = false, anchor = [ 0, 0, 0 ])
 {
+    assert(diameter == false || (is_num(diameter) && diameter > 0), "Error: diameter must be false or a valid number");
+
     __BODY_WIDTH = 23;
     __BODY_LENGTH = 51;
     __BODY_HEIGHT = 9;
 
-    __ANTENNA_CONNECTOR_DIAMETER = 6.5;
+    __ANTENNA_CONNECTOR_DIAMETER = (diameter == false) ? 6.5 : diameter;
     __ANTENNA_CONNECTOR_LENGTH = 5.5;
 
-    __ANTENNA_EXTENSION_DIAMETER = 9;
+    __ANTENNA_EXTENSION_DIAMETER = (diameter == false) ? 9 : diameter;
     __ANTENNA_EXTENSION_LENGTH = 12;
 
     __USB_WIDTH = 12;
     __USB_LENGTH = 12.5;
     __USB_HEIGHT = 5;
 
+    //----------------
     // Body
+    //----------------
     color_this("white") cuboid([ __BODY_WIDTH, __BODY_LENGTH, __BODY_HEIGHT ], rounding = 1,
                                edges = [ FRONT, LEFT, RIGHT ], anchor = anchor)
     {
+        //----------------
         // Antenna
+        //----------------
         color_this("gold") position(FRONT)
             ycyl(d = __ANTENNA_CONNECTOR_DIAMETER, h = __ANTENNA_CONNECTOR_LENGTH, anchor = BACK)
         {
-            if (antenna_extension)
+            //----------------
+            // Antenna extension
+            //----------------
+            if (extension)
             {
-                // Extension body
-                color_this("gold") position(FRONT) back(__ANTENNA_CONNECTOR_LENGTH)
+                color_this("gold") position(FRONT) back(__ANTENNA_CONNECTOR_LENGTH - 2)
                     ycyl(d = __ANTENNA_EXTENSION_DIAMETER, h = __ANTENNA_EXTENSION_LENGTH, anchor = BACK)
                     // Extension cube
                     position(FRONT) cuboid(7, anchor = BACK)
@@ -50,9 +55,19 @@ module enocean_tcm_310(antenna_extension = true, anchor = BOTTOM + LEFT + FRONT)
             }
         }
 
+        //----------------
         // USB connector
+        //----------------
         color_this("lightgray") position(BACK)
             cuboid([ __USB_WIDTH, __USB_LENGTH, __USB_HEIGHT ], rounding = .2,
                    edges = [ LEFT + TOP, LEFT + BOTTOM, RIGHT + TOP, RIGHT + BOTTOM ], anchor = FRONT);
     }
 }
+
+// ------------------------------------------------------------------------
+// Usage examples:
+//
+// enocean_tcm_310();
+// enocean_tcm_310(diameter = 12);
+// enocean_tcm_310(extension = false);
+// ------------------------------------------------------------------------
