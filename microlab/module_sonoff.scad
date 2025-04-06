@@ -14,12 +14,10 @@ module sonoff_support()
             cuboid([ SONOFF_BODY_WIDTH, 1, 5 ], rounding = 1, edges = [TOP + LEFT], anchor = BACK + RIGHT + TOP);
 }
 
-microlab_plate(60)
+microlab_plate(length = 60)
 {
     diff("minus")
     {
-        position(BOTTOM + FRONT) microlab_panel(length = 70);
-
         // SONOFF ZIGBEE DONGLE
         position(TOP + FRONT + LEFT) fwd(.9) up(get_slop()) right(2 + get_slop())
         {

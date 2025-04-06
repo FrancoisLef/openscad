@@ -41,7 +41,7 @@ module microlab_panel(U = 0.5, thick = 2, anchor = [ 0, 0, 0 ])
             //----------------
             xflip_copy() position(BOTTOM + FRONT + LEFT)
             {
-                cuboid([ __EAR_WIDTH, __EAR_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ], rounding = thick / 2,
+                cuboid([ __EAR_WIDTH, __EAR_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ], rounding = 2,
                        edges = [ TOP + LEFT, BOTTOM + LEFT ], anchor = BOTTOM + FRONT + RIGHT)
                 {
                     zcopies(n = 2, spacing = __PANEL_HEIGHT * (__U_MULTIPLE - 1), sp = 0) position(BOTTOM + LEFT)
