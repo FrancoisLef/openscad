@@ -1,13 +1,65 @@
 include <BOSL2/std.scad>
+include <BOSL2/walls.scad>
 include <constants.scad>
 
-// ------------------------------------------------------------------------
-// Usage examples:
+//------------------------------------------------------------------------
+// Microlab panel
+//------------------------------------------------------------------------
+// This module is used to create a panel for the Microlab rack system.
+// The panel height is adjustable based on the number of rack units (U) to cover.
 //
-// microlab_plate(length = 80) {
-//    position(BOTTOM + FRONT) microlab_panel(u = 1, lenght = 80);
-// }
-// ------------------------------------------------------------------------
+// @param U: Number of rack units (U) to cover (0.5, 1, 1.5, 2)
+// @param thick: Thickness of the panel (default is 2mm)
+// @param anchor: Anchor point of the plate (default is centered)
+//------------------------------------------------------------------------
+module microlab_panel(U = 0.5, thick = 2, anchor = [ 0, 0, 0 ])
+{
+    assert(U == 0.5 || U == 1 || U == 1.5 || U == 2, "Error: U must be 0.5, 1, 1.5, or 2");
+
+    __U_DEFAULT = 0.5;
+    __U_MULTIPLE = U / __U_DEFAULT; // When U is 0.5 -> 1, 1 -> 2, 1.5 -> 3, 2 -> 4
+
+    __PANEL_WIDTH = 112;
+    __PANEL_HEIGHT = 22;
+
+    __EAR_WIDTH = 18;
+    __EAR_THICKNESS = 3;
+
+    __HOLE_DIAMETER = 3 + get_slop();
+    __HOLE_THICKNESS = __EAR_THICKNESS + get_slop();
+    __HOLE_PADDING = 9;
+
+    diff("microlab_panel_hole")
+    {
+        //----------------
+        // Panel
+        //----------------
+        cuboid([ __PANEL_WIDTH, thick, __PANEL_HEIGHT * __U_MULTIPLE ], anchor = anchor)
+        {
+            //----------------
+            // Ear
+            //----------------
+            xflip_copy() position(BOTTOM + FRONT + LEFT)
+            {
+                cuboid([ __EAR_WIDTH, __EAR_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ], rounding = thick / 2,
+                       edges = [ TOP + LEFT, BOTTOM + LEFT ], anchor = BOTTOM + FRONT + RIGHT)
+                {
+                    zcopies(n = 2, spacing = __PANEL_HEIGHT * (__U_MULTIPLE - 1), sp = 0) position(BOTTOM + LEFT)
+                        up(__PANEL_HEIGHT / 2) right(__HOLE_PADDING)
+                    {
+                        tag("microlab_panel_hole")
+                            cylinder(d = __HOLE_DIAMETER, h = __HOLE_THICKNESS, orient = BACK, anchor = LEFT);
+                    }
+                }
+            }
+
+            //----------------
+            // Children
+            //----------------
+            children();
+        }
+    }
+}
 
 //------------------------------------------------------------------------
 // Microlab plate
@@ -16,97 +68,66 @@ include <constants.scad>
 // The plate width will fill the entire width of the rack, and the length is adjustable.
 //
 // @param length: Length of the plate (default is 90mm)
-// @param anchor: Anchor point of the plate (default is BOTTOM + LEFT + FRONT)
+// @param U: Number of rack units (U) to support (0.5, 1, 1.5, 2)
+// @param side_supports: Whether to include a support (default is true)
+// @param panel_thick: Thickness of the panel (default is 2mm)
+// @param anchor: Anchor point of the plate (default is TOP + FRONT + LEFT)
 //------------------------------------------------------------------------
-module microlab_plate(length = 90, anchor = TOP + LEFT + FRONT)
+module microlab_plate(length = 90, U = 0.5, side_supports = true, panel_thick = 2, anchor = [ 0, 0, 0 ])
 {
+    assert(U == 0.5 || U == 1 || U == 1.5 || U == 2, "Error: U must be 0.5, 1, 1.5, or 2");
+
+    __U_DEFAULT = 0.5;
+    __U_MULTIPLE = U / __U_DEFAULT; // When U is 0.5 -> 1, 1 -> 2, 1.5 -> 3, 2 -> 4
+
+    __PANEL_HEIGHT = 22;
+
     __PLATE_WIDTH = 112;
     __PLATE_THICKNESS = 2;
-    __PLATE_SIZE = [ __PLATE_WIDTH, length, __PLATE_THICKNESS ];
 
-    cuboid(__PLATE_SIZE, rounding = __PLATE_THICKNESS, edges = [ BACK + LEFT, BACK + RIGHT ], anchor = anchor)
+    __SUPPORT_THICKNESS = 2;
+
+    //----------------
+    // Plate
+    //----------------
+    cuboid([ __PLATE_WIDTH, length, __PLATE_THICKNESS ], rounding = __PLATE_THICKNESS,
+           edges = [ BACK + LEFT, BACK + RIGHT ], anchor = anchor)
     {
+        //----------------
+        // Side supports
+        //----------------
+        if (side_supports)
+        {
+            xcopies(spacing = __PLATE_WIDTH - __SUPPORT_THICKNESS, n = 2, sp = 0)
+            {
+                position(BOTTOM + FRONT + LEFT)
+                {
+                    cuboid([ __SUPPORT_THICKNESS, __SUPPORT_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ],
+                           anchor = BOTTOM + FRONT + LEFT);
+
+                    back(__SUPPORT_THICKNESS)
+                        wedge([ __SUPPORT_THICKNESS, length * 0.7, __PANEL_HEIGHT * __U_MULTIPLE ],
+                              anchor = BOTTOM + FRONT + LEFT);
+                }
+            }
+        }
+
+        //----------------
+        // Panel
+        //----------------
+        position(BOTTOM + FRONT + LEFT) microlab_panel(U = U, thick = panel_thick, anchor = BOTTOM + BACK + LEFT);
+
+        //----------------
+        // Children
+        //----------------
         children();
     }
 }
 
-//------------------------------------------------------------------------
-// Microlab panel
-//------------------------------------------------------------------------
-// This module is used to create a panel for the Microlab rack system.
-// The panel height is adjustable based on the number of rack units (U) to cover.
-// You can also add supports to the panel that connects with the plate.
+// ------------------------------------------------------------------------
+// Usage examples:
 //
-// @param u: Number of rack units (U) to cover (0.5, 1, 1.5, 2)
-// @param support: Whether to add support (default is true)
-// @param thin: Whether to make the panel thinner (2mm instead of 3mm thick) (default is true)
-// @param anchor: Anchor point of the plate (default is BOTTOM + LEFT + FRONT)
-//------------------------------------------------------------------------
-module microlab_panel(u = 0.5, length = 80, support = true, thin = true, anchor = BOTTOM + BACK)
-{
-    assert(u == 0.5 || u == 1 || u == 1.5 || u == 2, "Error: u must be 0.5, 1, 1.5, or 2");
-
-    __U_DEFAULT = 0.5;
-    __U_MULTIPLE = u / __U_DEFAULT; // When u is 0.5 -> 1, 1 -> 2, 1.5 -> 3, 2 -> 4
-    __PANEL_WIDTH = 148;
-    __PANEL_HEIGHT = 22;
-    __PANEL_THICKNESS = 3;
-
-    __PANEL_SUPPORT_THICKNESS = 2;
-
-    __PANEL_HOLE_DIAMETER = 3 + get_slop();
-    __PANEL_HOLE_PADDING = 9;
-    __PANEL_HOLE_Z_COPIES = support ? __U_MULTIPLE : 2;
-
-    __PANEL_EAR_WIDTH = 18;
-
-    // Remove the holes from the panel
-    diff("microlab_cutout")
-    {
-        // Draw the panel
-        cuboid([ __PANEL_WIDTH, __PANEL_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ], rounding = __PANEL_THICKNESS / 2,
-               edges = [ TOP + LEFT, TOP + RIGHT, BOTTOM + LEFT, BOTTOM + RIGHT ], anchor = anchor)
-        {
-            if (thin)
-            {
-                // Reduce the thickness of the panel in the middle by 1mm
-                position(BACK + BOTTOM + LEFT) fwd(1 - get_slop()) up(get_slop()) tag("microlab_cutout")
-                    right(__PANEL_EAR_WIDTH + __PANEL_SUPPORT_THICKNESS) cuboid(
-                        [
-                            __PANEL_WIDTH - __PANEL_EAR_WIDTH * 2 - __PANEL_SUPPORT_THICKNESS * 2, 1, __PANEL_HEIGHT *
-                            __U_MULTIPLE
-                        ],
-                        anchor = FRONT + LEFT + BOTTOM);
-            }
-
-            // Copy and spread holes along the Z axis up based on U size
-            zcopies(n = __PANEL_HOLE_Z_COPIES, spacing = __PANEL_HEIGHT * (__U_MULTIPLE - 1), sp = 0)
-                // Copy and spread 2 holes along the X axis
-                xcopies(n = 2, spacing = __PANEL_WIDTH - __PANEL_HOLE_DIAMETER - __PANEL_HOLE_PADDING * 2, sp = 0)
-                // Center the hole vertically and add a left padding
-                position(BOTTOM + LEFT) up(__PANEL_HEIGHT / 2) right(__PANEL_HOLE_PADDING)
-                // Draw the hole on the left of the panel
-                tag("microlab_cutout") cylinder(d = __PANEL_HOLE_DIAMETER, h = __PANEL_THICKNESS + get_slop(),
-                                                orient = BACK, anchor = LEFT);
-
-            if (support)
-            {
-                // Copy and spread 2 supports along the X axis
-                xcopies(n = 2, spacing = __PANEL_WIDTH - __PANEL_EAR_WIDTH * 2 - __PANEL_SUPPORT_THICKNESS, sp = 0)
-                    position(LEFT + BOTTOM + BACK) right(__PANEL_EAR_WIDTH) union()
-                {
-                    // Draw the first part of the support (rectangle)
-                    cuboid([ __PANEL_SUPPORT_THICKNESS, __PANEL_THICKNESS, __PANEL_HEIGHT * __U_MULTIPLE ],
-                           anchor = LEFT + BOTTOM + FRONT);
-                    // Draw the second part of the support (triangle)
-                    back(__PANEL_THICKNESS)
-                        wedge([ __PANEL_SUPPORT_THICKNESS, length * 0.7, __PANEL_HEIGHT * __U_MULTIPLE ],
-                              anchor = LEFT + BOTTOM + FRONT);
-                }
-            }
-
-            // Render children
-            children();
-        }
-    }
-}
+// microlab_panel(U = 1.5);
+// microlab_plate(100, 1.5);
+// microlab_plate(length = 50, u = 1);
+// ------------------------------------------------------------------------
