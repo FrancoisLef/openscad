@@ -5,6 +5,9 @@ include <../peripherals/enocean.scad>
 include <../peripherals/sonoff.scad>
 include <../peripherals/ssd.scad>
 
+DONGLE_DIAMETER = 8;
+DONGLE_EXTENSION = false;
+
 diff("peripheral") microlab_plate(length = 60) back(get_slop()) up(get_slop())
 {
     //----------------
@@ -13,9 +16,15 @@ diff("peripheral") microlab_plate(length = 60) back(get_slop()) up(get_slop())
     position(TOP + FRONT + LEFT) right(2 + get_slop())
     {
         //----------------
-        // Dongle
+        // Bottom support - elevate the dongle
         //----------------
-        tag("peripheral") sonoff_zigbee_3_0_dongle(diameter = 12, anchor = BOTTOM + FRONT + LEFT);
+        back(5) cuboid([ 26, 47, 4.22 ], anchor = BOTTOM + FRONT + LEFT) position(TOP + FRONT + LEFT) fwd(5)
+            up(get_slop())
+            //----------------
+            // Peripheral - Sonoff Zigbee Dongle
+            //----------------
+            tag("peripheral") sonoff_zigbee_3_0_dongle(diameter = DONGLE_DIAMETER, extension = DONGLE_EXTENSION,
+                                                       anchor = BOTTOM + FRONT + LEFT);
 
         //----------------
         // Right support
@@ -35,9 +44,15 @@ diff("peripheral") microlab_plate(length = 60) back(get_slop()) up(get_slop())
     position(TOP + FRONT + RIGHT) left(2 + get_slop())
     {
         //----------------
-        // Dongle
+        // Bottom support - elevate the dongle
         //----------------
-        tag("peripheral") enocean_tcm_310(diameter = 12, anchor = BOTTOM + FRONT + RIGHT);
+        back(5) cuboid([ 23, 46, 4.48 ], anchor = BOTTOM + FRONT + RIGHT) position(TOP + FRONT + RIGHT) fwd(5)
+            up(get_slop())
+            //----------------
+            // Peripheral - Enocean TCM310
+            //----------------
+            tag("peripheral") enocean_tcm_310(diameter = DONGLE_DIAMETER, extension = DONGLE_EXTENSION,
+                                              anchor = BOTTOM + FRONT + RIGHT);
 
         //----------------
         // Left support
@@ -57,7 +72,7 @@ diff("peripheral") microlab_plate(length = 60) back(get_slop()) up(get_slop())
     position(TOP + RIGHT + FRONT) left(2 + 29 + get_slop())
     {
         //----------------
-        // SSD
+        // Peripheral - SSD
         //----------------
         tag("peripheral") xrot(180) ssd_2230(anchor = TOP + BACK + RIGHT);
 

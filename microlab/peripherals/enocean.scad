@@ -37,7 +37,7 @@ module enocean_tcm_310(extension = true, diameter = false, anchor = [ 0, 0, 0 ])
         //----------------
         // Antenna
         //----------------
-        color_this("gold") position(FRONT)
+        color_this("goldenrod") position(FRONT)
             ycyl(d = __ANTENNA_CONNECTOR_DIAMETER, h = __ANTENNA_CONNECTOR_LENGTH, anchor = BACK)
         {
             //----------------
@@ -45,7 +45,7 @@ module enocean_tcm_310(extension = true, diameter = false, anchor = [ 0, 0, 0 ])
             //----------------
             if (extension)
             {
-                color_this("gold") position(FRONT) back(__ANTENNA_CONNECTOR_LENGTH - 2)
+                color_this("goldenrod") position(FRONT) back(__ANTENNA_CONNECTOR_LENGTH - 2)
                     ycyl(d = __ANTENNA_EXTENSION_DIAMETER, h = __ANTENNA_EXTENSION_LENGTH, anchor = BACK)
                     // Extension cube
                     position(FRONT) cuboid(7, anchor = BACK)
@@ -69,5 +69,5 @@ module enocean_tcm_310(extension = true, diameter = false, anchor = [ 0, 0, 0 ])
 //
 // enocean_tcm_310();
 // enocean_tcm_310(diameter = 12);
-// enocean_tcm_310(extension = false);
+// enocean_tcm_310(diameter = 12, extension = false);
 // ------------------------------------------------------------------------

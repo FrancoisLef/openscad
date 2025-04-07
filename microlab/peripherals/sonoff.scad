@@ -18,7 +18,8 @@ module sonoff_zigbee_3_0_dongle(extension = true, diameter = false, anchor = [ 0
     __BODY_LENGTH = 52;
     __BODY_HEIGHT = 14;
 
-    __ANTENNA_CONNECTOR_DIAMETER = (diameter == false) ? 6.5 : diameter;
+    __ANTENNA_CONNECTOR_WIDTH = 6.5;
+    __ANTENNA_CONNECTOR_DIAMETER = (diameter == false) ? 6 : diameter;
     __ANTENNA_CONNECTOR_LENGTH = 10;
     __ANTENNA_CONNECTOR_VISIBLE_LENGTH = 3;
 
@@ -36,23 +37,31 @@ module sonoff_zigbee_3_0_dongle(extension = true, diameter = false, anchor = [ 0
                                  edges = [ LEFT + TOP, LEFT + BOTTOM, RIGHT + TOP, RIGHT + BOTTOM ], anchor = anchor)
     {
         //----------------
-        // Antenna
+        // Antenna - support
+        // First draw the gold cube that supports the antenna connector, then draw the antenna connector centered on it.
         //----------------
-        color_this("gold") position(FRONT + BOTTOM) up(1.5)
-            ycyl(d = __ANTENNA_CONNECTOR_DIAMETER, h = __ANTENNA_CONNECTOR_LENGTH, anchor = BOTTOM + BACK)
+        color_this("goldenrod") position(BOTTOM + FRONT) up(1.5)
+            cuboid([ __ANTENNA_CONNECTOR_WIDTH, get_slop() / 2, __ANTENNA_CONNECTOR_WIDTH ], anchor = BACK + BOTTOM)
         {
             //----------------
-            // Antenna extension
+            // Antenna - threaded connector
             //----------------
-            if (extension)
+            color_this("goldenrod") position(FRONT)
+                ycyl(d = __ANTENNA_CONNECTOR_DIAMETER, h = __ANTENNA_CONNECTOR_LENGTH, anchor = BACK)
             {
-                color_this("black") position(FRONT)
-                    back(__ANTENNA_CONNECTOR_LENGTH - __ANTENNA_CONNECTOR_VISIBLE_LENGTH)
-                    // Extension straight
-                    ycyl(d = __ANTENNA_EXTENSION_DIAMETER, h = 21, anchor = BACK)
+                //----------------
+                // Antenna - extension
+                //----------------
+                if (extension)
+                {
+                    position(FRONT) back(__ANTENNA_CONNECTOR_LENGTH - __ANTENNA_CONNECTOR_VISIBLE_LENGTH)
+                        // Extension straight
+                        color_this("black") ycyl(d = __ANTENNA_EXTENSION_DIAMETER, h = 21, anchor = BACK);
                     // Extension antenna
                     position(FRONT + BOTTOM) color_this("black")
-                        zcyl(d = __ANTENNA_EXTENSION_DIAMETER, h = 87, rounding2 = 5, anchor = BOTTOM + BACK);
+                        zcyl(d = __ANTENNA_EXTENSION_DIAMETER, h = 87, rounding2 = __ANTENNA_EXTENSION_DIAMETER / 2,
+                             anchor = BOTTOM + BACK);
+                }
             }
         }
 
@@ -69,6 +78,6 @@ module sonoff_zigbee_3_0_dongle(extension = true, diameter = false, anchor = [ 0
 // Usage examples:
 //
 // sonoff_zigbee_3_0_dongle();
-// sonoff_zigbee_3_0_dongle(diameter = 12);
-// sonoff_zigbee_3_0_dongle(extension = false);
+// sonoff_zigbee_3_0_dongle(diameter = 1);
+// sonoff_zigbee_3_0_dongle(diameter = 12, extension = true);
 // ------------------------------------------------------------------------
