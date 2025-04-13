@@ -101,6 +101,39 @@ module sonoff_zigbee_3_0_usb(anchor = [ 0, 0, 0 ])
 }
 
 //------------------------------------------------------------------------
+// Sonoff Zigbee 3.0 USB Dongle Plus
+//------------------------------------------------------------------------
+// This module is used to create a Sonoff Zigbee 3.0 USB Dongle Plus model.
+//
+// @param extension: Whether to include the antenna extension (default is true)
+// @param diameter: Diameter of the antenna connector (default is false)
+// @param anchor: Anchor point of the dongle (default is center)
+//------------------------------------------------------------------------
+module sonoff_zigbee_3_0_dongle(extension = true, diameter = false, anchor = [ 0, 0, 0 ])
+{
+    assert(diameter == false || (is_num(diameter) && diameter > 0), "Error: diameter must be false or a valid number");
+
+    //----------------
+    // Body
+    //----------------
+    color_this("dimgray") cuboid([ 26, 52, 14 ], rounding = .5,
+                                 edges = [ LEFT + TOP, LEFT + BOTTOM, RIGHT + TOP, RIGHT + BOTTOM ], anchor = anchor)
+    {
+        //----------------
+        // Antenna
+        //----------------
+        position(BOTTOM + FRONT) up(1.5) back(1.5 - get_slop())
+            sonoff_zigbee_3_0_antenna(diameter = diameter, extension = extension, anchor = BACK + BOTTOM);
+
+        //----------------
+        // USB connector
+        //----------------
+        color_this("lightgray") position(BACK + BOTTOM) up(3) fwd(5) zrot(180)
+            sonoff_zigbee_3_0_usb(anchor = BACK + BOTTOM);
+    };
+}
+
+//------------------------------------------------------------------------
 // Sonoff Zigbee 3.0 USB Dongle PCB
 //------------------------------------------------------------------------
 // This module is used to create a PCB model for the Sonoff Zigbee 3.0 USB Dongle.
@@ -152,43 +185,53 @@ module sonoff_zigbee_3_0_pcb(extension = true, diameter = false, hole_length = 5
 }
 
 //------------------------------------------------------------------------
-// Sonoff Zigbee 3.0 USB Dongle Plus
+// Sonoff Zigbee 3.0 USB Dongle PCB Holes
 //------------------------------------------------------------------------
-// This module is used to create a Sonoff Zigbee 3.0 USB Dongle Plus model.
+// This module is used to create only the PCB mounting hole cylinders for the Sonoff Zigbee 3.0 USB Dongle.
+// Useful for creating cutouts in mounting brackets or cases.
 //
-// @param extension: Whether to include the antenna extension (default is true)
-// @param diameter: Diameter of the antenna connector (default is false)
-// @param anchor: Anchor point of the dongle (default is center)
+// @param hole_length: Length of the holes (default is 5)
+// @param hole_diameter: Diameter of the holes (default is 2)
+// @param anchor: Anchor point of the PCB (default is center [0, 0, 0])
 //------------------------------------------------------------------------
-module sonoff_zigbee_3_0_dongle(extension = true, diameter = false, anchor = [ 0, 0, 0 ])
+module sonoff_zigbee_3_0_pcb_holes(hole_length = 5, hole_diameter = 2, anchor = [ 0, 0, 0 ])
 {
-    assert(diameter == false || (is_num(diameter) && diameter > 0), "Error: diameter must be false or a valid number");
+    // PCB dimensions
+    pcb_width = 23;
+    pcb_length = 50;
 
-    //----------------
-    // Body
-    //----------------
-    color_this("dimgray") cuboid([ 26, 52, 14 ], rounding = .5,
-                                 edges = [ LEFT + TOP, LEFT + BOTTOM, RIGHT + TOP, RIGHT + BOTTOM ], anchor = anchor)
+    // Calculate offsets based on the anchor point
+    x_offset = anchor.x;
+    y_offset = anchor.y;
+    z_offset = anchor.z;
+
+    // Create a union of all four cylinders
+    color("red") union()
     {
-        //----------------
-        // Antenna
-        //----------------
-        position(BOTTOM + FRONT) up(1.5) back(1.5 - get_slop())
-            sonoff_zigbee_3_0_antenna(diameter = diameter, extension = extension, anchor = BACK + BOTTOM);
+        // Front Left hole
+        translate([ x_offset - pcb_width / 2 + 2.5, y_offset + pcb_length / 2 - 2, z_offset ])
+            zcyl(d = hole_diameter, l = hole_length, anchor = BACK + LEFT);
 
-        //----------------
-        // USB connector
-        //----------------
-        color_this("lightgray") position(BACK + BOTTOM) up(3) fwd(5) zrot(180)
-            sonoff_zigbee_3_0_usb(anchor = BACK + BOTTOM);
-    };
+        // Front Right hole
+        translate([ x_offset + pcb_width / 2 - 2.5, y_offset + pcb_length / 2 - 2, z_offset ])
+            zcyl(d = hole_diameter, l = hole_length, anchor = BACK + RIGHT);
+
+        // Back Left hole
+        translate([ x_offset - pcb_width / 2 + 2.5, y_offset - pcb_length / 2 + 2, z_offset ])
+            zcyl(d = hole_diameter, l = hole_length, anchor = FRONT + LEFT);
+
+        // Back Right hole
+        translate([ x_offset + pcb_width / 2 - 2.5, y_offset - pcb_length / 2 + 2, z_offset ])
+            zcyl(d = hole_diameter, l = hole_length, anchor = FRONT + RIGHT);
+    }
 }
 
 // ------------------------------------------------------------------------
 // Usage examples:
 //
-// sonoff_zigbee_3_0_pcb();
+sonoff_zigbee_3_0_pcb();
 // sonoff_zigbee_3_0_pcb(diameter = 12, extension = true, hole_length = 20);
+sonoff_zigbee_3_0_pcb_holes(hole_length = 5, hole_diameter = 2);
 //
 // sonoff_zigbee_3_0_dongle();
 // sonoff_zigbee_3_0_dongle(diameter = 1);
@@ -198,4 +241,5 @@ module sonoff_zigbee_3_0_dongle(extension = true, diameter = false, anchor = [ 0
 //
 // sonoff_zigbee_3_0_usb();
 // sonoff_zigbee_3_0_antenna(diameter = false, extension = true, oriented = true);
+//
 // ------------------------------------------------------------------------
