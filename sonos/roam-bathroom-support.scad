@@ -41,12 +41,12 @@ module heater_tubes(extra = false, anchor = [ 0, 0, 0 ])
 module sonos_roam(anchor = [ 0, 0, 0 ])
 {
     __WIDTH = 200;
-    __THICKNESS = 4;
+    __THICKNESS = 3;
     __DEPTH = 70;
 
     __SUPPORT_WIDTH = 20;
     // (Diameter of a tube * number of tubes to cover) + spacing between tubes
-    __SUPPORT_HEIGHT = (__HEATER_TUBE_DIAMETER * 2) + __HEATER_TUBE_SPACING + 5;
+    __SUPPORT_HEIGHT = (__HEATER_TUBE_DIAMETER * 2) + __HEATER_TUBE_SPACING;
 
     diff("tubes")
     {
@@ -57,11 +57,11 @@ module sonos_roam(anchor = [ 0, 0, 0 ])
             position(TOP) xcopies(n = 2, spacing = __WIDTH / 2 + __SUPPORT_WIDTH / 2)
             {
                 // Tube support
-                cuboid([ __SUPPORT_WIDTH, __HEATER_TUBE_DIAMETER + __THICKNESS * 2, __SUPPORT_HEIGHT ], rounding = 3,
-                       edges = [ TOP, LEFT, RIGHT ], except = [BOTTOM], anchor = BOTTOM);
+                prismoid(size1 = [ __SUPPORT_WIDTH, __DEPTH - 10 ], size2 = [ __SUPPORT_WIDTH, __DEPTH - 40 ],
+                         height = __SUPPORT_HEIGHT, rounding = 5);
             }
 
-            tag("tubes") position(TOP) up(5) heater_tubes(extra = true, anchor = BOTTOM);
+            tag("tubes") position(TOP) up(5) heater_tubes(extra = false, anchor = BOTTOM);
         }
     }
 }
