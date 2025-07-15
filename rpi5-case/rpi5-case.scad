@@ -1,26 +1,30 @@
 include <BOSL2/std.scad>
 include <BOSL2/walls.scad>
+include <BOSL2/screws.scad>
 include <constants.scad>
 include <rpi5.scad>
 
-__WALL = 2;
-__FEET_HEIGHT = 5;
+// Internal dimensions of the case
+WIDTH = 60;
+HEIGHT = 70;
+LENGTH = 95;
+
+// Misc.
+WALL = 2;
+FEET = 5;
 
 module rpi5_case() {
-  __WIDTH = 60;
-  __HEIGHT = 70;
-  __LENGTH = 95;
 
-  diff("pi") {
+  diff("holes") {
     //----------------
-    // External case
+    // Case
     //----------------
-    fwd(__WALL) down(__WALL) left(__WALL) rect_tube(
-            isize=[__HEIGHT, __LENGTH],
-            wall=__WALL,
-            rounding=__WALL,
+    left(WALL) fwd(WALL) down(WALL) rect_tube(
+            isize=[HEIGHT, LENGTH],
+            wall=WALL,
+            rounding=5,
             irounding=0,
-            h=__WIDTH,
+            h=WIDTH,
             orient=LEFT,
             anchor=LEFT + TOP + FRONT
           );
@@ -29,18 +33,25 @@ module rpi5_case() {
     // Raspberry Pi feets
     //----------------
     back(__RPI_LENGTH - __RPI_HOLE_SPACE_FROM_EDGE)
-      cuboid([__RPI_WIDTH, __RPI_HOLE_DIAMETER * 2, __FEET_HEIGHT], rounding=1, edges=TOP, anchor=BOTTOM + LEFT);
+      cuboid([__RPI_WIDTH, __RPI_HOLE_DIAMETER * 2, FEET], rounding=1, edges=TOP, anchor=BOTTOM + LEFT);
     back(__RPI_LENGTH - __RPI_HOLE_SPACE_FROM_EDGE - __RPI_HOLE_Y_SPACING)
-      cuboid([__RPI_WIDTH, __RPI_HOLE_DIAMETER * 2, __FEET_HEIGHT], rounding=1, edges=TOP, anchor=BOTTOM + LEFT);
+      cuboid([__RPI_WIDTH, __RPI_HOLE_DIAMETER * 2, FEET], rounding=1, edges=TOP, anchor=BOTTOM + LEFT);
 
     //----------------
-    // EnoCean antenna
+    // Side mounting points
     //----------------
+
+    //----------------
+    // External antenna connector
+    //----------------
+    tag("holes") right(WIDTH / 2 - WALL) up(HEIGHT / 2 + WALL) teardrop(d=6.5, h=10, cap_h=3);
 
     //----------------
     // Raspberry Pi 5
     //----------------
-    tag("pi") up(__FEET_HEIGHT) rpi5(extrude=10, anchor=LEFT + BOTTOM + FRONT);
+    tag("holes") up(FEET) rpi5(extrude=10, margin=0.5, anchor=LEFT + BOTTOM + FRONT) {
+          screw_hole("M3x1", length=__RPI_HEIGHT + FEET, head="socket", anchor=BOTTOM, orient=DOWN);
+        }
   }
 }
 
