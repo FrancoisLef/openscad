@@ -73,6 +73,35 @@ module rpi5_case() {
       }
 
     //----------------
+    // Ventilation holes
+    //----------------
+    tag("holes") right((WIDTH / 2) - WALL) union() {
+          HOLE_DIAMETER = 4;
+
+          // Top holes
+          up(HEIGHT - get_slop()) back(LENGTH / 2) grid_copies(
+                size=[WIDTH - FEET - WALL * 2, LENGTH - FEET * 2 - WALL * 2],
+                spacing=[HOLE_DIAMETER, HOLE_DIAMETER],
+                stagger=true
+              ) cylinder(d=HOLE_DIAMETER, h=WALL + get_slop() * 2);
+
+          // Back holes
+          up(HEIGHT / 2) back(LENGTH + WALL - 1) grid_copies(
+                size=[WIDTH - FEET - WALL * 2, HEIGHT - FEET * 2 - WALL * 2],
+                spacing=[HOLE_DIAMETER, HOLE_DIAMETER],
+                stagger=true,
+                axes="xz"
+              ) ycyl(d=HOLE_DIAMETER, h=WALL + get_slop() * 2);
+
+          // Bottom holes
+          down(WALL + get_slop()) back(LENGTH / 2 + FEET / 2) grid_copies(
+                size=[WIDTH - FEET - WALL * 2, 40],
+                spacing=[HOLE_DIAMETER, HOLE_DIAMETER],
+                stagger=true
+              ) cylinder(d=HOLE_DIAMETER, h=WALL + get_slop() * 2);
+        }
+
+    //----------------
     // External antenna connector
     //----------------
     tag("holes") right(WIDTH / 2 - WALL) up(SPACER + HEIGHT / 2 + WALL) teardrop(d=6.5, h=10, cap_h=3);
