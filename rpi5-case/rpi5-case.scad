@@ -34,12 +34,14 @@ module rpi5_case() {
     //----------------
     // Raspberry Pi feets
     //----------------
-    // Back feet
-    back(__RPI_LENGTH - __RPI_HOLE_SPACE_FROM_EDGE)
-      cuboid([__RPI_WIDTH, __RPI_HOLE_DIAMETER * 2, FEET], rounding=1, edges=TOP, anchor=BOTTOM + LEFT);
-    // Front feet
-    back(__RPI_LENGTH - __RPI_HOLE_SPACE_FROM_EDGE - __RPI_HOLE_Y_SPACING)
-      cuboid([__RPI_WIDTH, __RPI_HOLE_DIAMETER * 2, FEET], rounding=1, edges=TOP, anchor=BOTTOM + LEFT);
+    left(WALL) union() {
+        // Back feet
+        back(__RPI_LENGTH - __RPI_HOLE_SPACE_FROM_EDGE)
+          cuboid([WIDTH, __RPI_HOLE_DIAMETER * 2, FEET], rounding=1, edges=TOP, anchor=BOTTOM + LEFT);
+        // Front feet
+        back(__RPI_LENGTH - __RPI_HOLE_SPACE_FROM_EDGE - __RPI_HOLE_Y_SPACING)
+          cuboid([WIDTH, __RPI_HOLE_DIAMETER * 2, FEET], rounding=1, edges=TOP, anchor=BOTTOM + LEFT);
+      }
 
     //----------------
     // Side mounting points
@@ -79,7 +81,7 @@ module rpi5_case() {
     // Raspberry Pi 5
     //----------------
     tag("holes") up(FEET + SPACER) rpi5(extrude=10, margin=0.5, anchor=LEFT + BOTTOM + FRONT) {
-          screw_hole("M3x1", length=SPACER + __RPI_HEIGHT + FEET, head="socket", anchor=BOTTOM, orient=DOWN);
+          screw_hole("M3x1", length=SPACER + __RPI_HEIGHT + FEET + WALL / 2, head="socket", anchor=BOTTOM, orient=DOWN);
         }
   }
 }
