@@ -19,6 +19,12 @@ Followed [this](https://github.com/revarbat/BOSL/wiki) wiki installation guide.
   <img src="docs/img/pi5-case-open.png" />
 </p>
 
+### Tahoma shelf
+
+<p align="center">
+  <img src="docs/img/tahoma-shelf.png" />
+</p>
+
 ### Aqara Hub M2 wall mount
 
 <p align="center">
