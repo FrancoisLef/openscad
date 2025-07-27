@@ -5,13 +5,13 @@ include <constants.scad>
 //----------------
 // Arcade joystick Zippy
 //----------------
-module joystick_zippy(anchor = [0, 0, 0]) {
+module joystick_zippy(extrude = 3.2, anchor = [0, 0, 0]) {
   _plate_width = 65;
   _plate_length = 95;
   _plate_height = 1.5;
 
   _plate_hole_radius = 9 / 2;
-  _plate_hole_length = 3.2;
+  _plate_hole_length = extrude; // 3.2 (default)
 
   _shaft_radius = 30 / 2;
 

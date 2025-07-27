@@ -6,7 +6,7 @@ include <constants.scad>
 //----------------
 // Arcade buttons
 //----------------
-module arcade_buttons(anchor = [0, 0, 0]) {
+module arcade_joystick_and_buttons(anchor = [0, 0, 0]) {
   // Sanwa button radius (big) radius
   _btn_radius = 29.5 / 2;
   // Joystick plate width
@@ -36,7 +36,7 @@ module arcade_buttons(anchor = [0, 0, 0]) {
         // ----------------
         // Joystick
         // ----------------
-        joystick_zippy(anchor=TOP);
+        joystick_zippy(extrude = 10, anchor=TOP);
 
         // ----------------
         // Rows of buttons
@@ -68,7 +68,7 @@ module arcade_controller() {
   // Plate dimensions
   _width = 245;
   _length = 120;
-  _height = 3;
+  _height = 4;
 
   diff("holes") {
     //----------------
@@ -80,15 +80,46 @@ module arcade_controller() {
           _length,
           _height,
         ],
-        rounding=5,
-        edges="Z",
+        // rounding=5,
+        // edges="Z",
         anchor=TOP
       );
 
     //----------------
-    // Holes
+    // Legs
     //----------------
-    tag("holes") arcade_buttons(anchor=TOP);
+    // Left
+    left(_width / 2 - _height / 2) cuboid(
+      [
+        _height,
+        _length,
+        40
+      ],
+      anchor=TOP
+    );
+    // Right
+    right(_width / 2 - _height / 2) cuboid(
+      [
+        _height,
+        _length,
+        40
+      ],
+      anchor=TOP
+    );
+    // Back
+    back(_length / 2 - _height / 2) cuboid(
+      [
+        _width,
+        _height,
+        40
+      ],
+      anchor=TOP
+    );
+
+    //----------------
+    // Buttons and joystick
+    //----------------
+    tag("holes") arcade_joystick_and_buttons(anchor=TOP);
   }
 }
 
