@@ -56,44 +56,49 @@ module joystick_zippy(extrude = 3.2, anchor = [0, 0, 0]) {
 //----------------
 // Arcade button Sanwa
 //----------------
-module button_sanwa(size = "big", anchor = [0, 0, 0]) {
-  assert(size == "big" || size == "small", "Error: size must be 'big' or 'small'");
+module button_sanwa(type = "big", extrude = 0, margin = 0, anchor = [0, 0, 0]) {
+  assert(type == "big" || type == "small", "Error: type must be 'big' or 'small'");
+  _is_big = type == "big";
 
-  _bottom_radius = size == "big" ? 29.5 / 2 : 23.5 / 2;
-  _bottom_length = size == "big" ? 19 : 18;
+  module base() {
+    zcyl(
+      r=(_is_big ? 29.5 / 2 : 23.5 / 2) + margin,
+      l=(_is_big ? 19 : 18) + extrude,
+      anchor=anchor
+    ) {
+      children();
+    }
+  }
 
-  _top_radius = size == "big" ? 33 / 2 : 27 / 2;
-  _top_length = 3;
+  module cover() {
+    zcyl(
+      r=_is_big ? 33 / 2 : 27 / 2,
+      r2=_is_big ? 27 / 2 : 21 / 2,
+      l=3,
+      anchor=BOTTOM
+    ) {
+      children();
+    }
+  }
 
-  _push_radius = size == "big" ? 25 / 2 : 19.5 / 2;
-  _push_length = 3;
+  module plunger() {
+    zcyl(
+      r=_is_big ? 25 / 2 : 19.5 / 2,
+      rounding2=1.5,
+      l=3,
+      anchor=BOTTOM
+    ) {
+      children();
+    }
+  }
 
-  //----------------
-  // Bottom cylinder
-  //----------------
-  zcyl(
-    r=_bottom_radius,
-    l=_bottom_length,
-    anchor=anchor
-  ) {
-    //----------------
-    // Cap cylinder
-    //----------------
-    position(TOP) ghost_this() zcyl(
-          r=_top_radius,
-          r2=_push_radius,
-          l=_top_length,
-          anchor=BOTTOM
-        ) {
-          //----------------
-          // Push cylinder
-          //----------------
-          position(TOP) ghost_this() zcyl(
-                r=_push_radius,
-                rounding2=1.5,
-                l=_push_length,
-                anchor=BOTTOM
-              );
+  base() {
+    position(TOP)
+      up(get_slop())
+        cover() {
+          position(TOP) plunger();
         }
   }
 }
+
+button_sanwa();

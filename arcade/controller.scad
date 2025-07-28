@@ -80,41 +80,10 @@ module arcade_controller() {
           _length,
           _height,
         ],
-        // rounding=5,
-        // edges="Z",
+        rounding=5,
+        edges="Z",
         anchor=TOP
       );
-
-    //----------------
-    // Legs
-    //----------------
-    // Left
-    left(_width / 2 - _height / 2) cuboid(
-      [
-        _height,
-        _length,
-        40
-      ],
-      anchor=TOP
-    );
-    // Right
-    right(_width / 2 - _height / 2) cuboid(
-      [
-        _height,
-        _length,
-        40
-      ],
-      anchor=TOP
-    );
-    // Back
-    back(_length / 2 - _height / 2) cuboid(
-      [
-        _width,
-        _height,
-        40
-      ],
-      anchor=TOP
-    );
 
     //----------------
     // Buttons and joystick
