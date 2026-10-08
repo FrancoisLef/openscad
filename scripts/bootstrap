@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Initialize the version-pinned OpenSCAD libraries used by this repository.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+git submodule update --init --recursive
+./scripts/scad doctor

@@ -1,0 +1,6 @@
+[submodule "vendor/BOSL2"]
+	path = vendor/BOSL2
+	url = https://github.com/BelfrySCAD/BOSL2.git
+[submodule "vendor/BOSL"]
+	path = vendor/BOSL
+	url = https://github.com/revarbat/BOSL.git

@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+# Reproducible OpenSCAD commands for this repository.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+export OPENSCADPATH="$ROOT/vendor${OPENSCADPATH:+:${OPENSCADPATH}}"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  scripts/scad doctor
+  scripts/scad list
+  scripts/scad check <model.scad>
+  scripts/scad check-all
+  scripts/scad export <stl|3mf|png> <model.scad> [output-path]
+
+Environment:
+  OPENSCAD_BIN  OpenSCAD executable to run (default: openscad on PATH)
+USAGE
+}
+
+fail() {
+  printf 'error: %s\n' "$*" >&2
+  exit 2
+}
+
+openscad_bin() {
+  if [[ -n "${OPENSCAD_BIN:-}" ]]; then
+    [[ -x "$OPENSCAD_BIN" ]] || fail "OPENSCAD_BIN is not executable: $OPENSCAD_BIN"
+    printf '%s\n' "$OPENSCAD_BIN"
+    return
+  fi
+
+  command -v openscad >/dev/null 2>&1 || fail "OpenSCAD was not found; install it or set OPENSCAD_BIN"
+  command -v openscad
+}
+
+require_model() {
+  local model="$1"
+  [[ "$model" == src/* ]] || fail "model must live under src/: $model"
+  [[ "$model" == *.scad ]] || fail "model must be a .scad file: $model"
+  [[ -f "$model" ]] || fail "model does not exist: $model"
+}
+
+run_openscad() {
+  local binary="$1"
+  shift
+  local log status
+  log="$(mktemp "${TMPDIR:-/tmp}/openscad-output.XXXXXX")"
+
+  set +e
+  "$binary" "$@" 2>&1 | tee "$log"
+  status="${PIPESTATUS[0]}"
+  set -e
+
+  if (( status != 0 )); then
+    rm -f "$log"
+    return "$status"
+  fi
+
+  if grep -Eq 'WARNING: Can.t (find include file|open library)|WARNING: Ignoring unknown (module|function|variable)' "$log"; then
+    printf 'error: OpenSCAD reported unresolved dependencies or symbols.\n' >&2
+    rm -f "$log"
+    return 1
+  fi
+
+  rm -f "$log"
+}
+
+check_model() {
+  local model="$1"
+  local temp_dir output binary
+  require_model "$model"
+  temp_dir="$(mktemp -d "${TMPDIR:-/tmp}/openscad-check.XXXXXX")"
+  output="$temp_dir/$(basename "${model%.scad}").csg"
+  binary="$(openscad_bin)"
+
+  printf 'Checking %s\n' "$model"
+  if ! run_openscad "$binary" -o "$output" "$model"; then
+    rm -rf "$temp_dir"
+    return 1
+  fi
+  rm -rf "$temp_dir"
+}
+
+list_models() {
+  find src \
+    -path 'src/lib' -prune -o \
+    -type f -name '*.scad' ! -name 'config.scad' -print |
+    sort
+}
+
+check_all() {
+  local model failed=0
+  while IFS= read -r model; do
+    if ! check_model "$model"; then
+      failed=1
+    fi
+  done < <(list_models)
+  return "$failed"
+}
+
+doctor() {
+  local binary
+  binary="$(openscad_bin)"
+  "$binary" --version
+  [[ -f vendor/BOSL/constants.scad ]] || fail "missing vendor/BOSL; run ./scripts/bootstrap"
+  [[ -f vendor/BOSL2/std.scad ]] || fail "missing vendor/BOSL2; run ./scripts/bootstrap"
+  printf 'Libraries: BOSL and BOSL2 are available from vendor/.\n'
+}
+
+export_model() {
+  local format="$1" model="$2" output="${3:-}" binary relative
+  require_model "$model"
+  case "$format" in
+    stl|3mf|png) ;;
+    *) fail "format must be one of: stl, 3mf, png" ;;
+  esac
+
+  if [[ -z "$output" ]]; then
+    relative="${model#src/}"
+    output="build/${relative%.scad}.${format}"
+  fi
+  mkdir -p "$(dirname "$output")"
+  binary="$(openscad_bin)"
+
+  printf 'Exporting %s to %s\n' "$model" "$output"
+  run_openscad "$binary" --render -o "$output" "$model"
+  printf '%s\n' "$output"
+}
+
+command="${1:-}"
+case "$command" in
+  doctor)
+    [[ "$#" -eq 1 ]] || { usage; exit 2; }
+    doctor
+    ;;
+  list)
+    [[ "$#" -eq 1 ]] || { usage; exit 2; }
+    list_models
+    ;;
+  check)
+    [[ "$#" -eq 2 ]] || { usage; exit 2; }
+    check_model "$2"
+    ;;
+  check-all)
+    [[ "$#" -eq 1 ]] || { usage; exit 2; }
+    check_all
+    ;;
+  export)
+    [[ "$#" -ge 3 && "$#" -le 4 ]] || { usage; exit 2; }
+    export_model "$2" "$3" "${4:-}"
+    ;;
+  -h|--help|help|'')
+    usage
+    ;;
+  *)
+    usage
+    exit 2
+    ;;
+esac
