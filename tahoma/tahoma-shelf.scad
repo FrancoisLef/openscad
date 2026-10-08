@@ -1,7 +1,7 @@
 include <BOSL2/std.scad>
 include <BOSL2/walls.scad>
 include <BOSL2/screws.scad>
-include <constants.scad>
+include <../lib/print-settings.scad>
 
 thick = 3;
 rounding = 1;

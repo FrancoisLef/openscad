@@ -1,5 +1,5 @@
 include <BOSL2/std.scad>
-include <constants.scad>
+include <../lib/print-settings.scad>
 
 // BORGHAMN "40 mm" : 40 est la longueur, l'entraxe reel est 32 mm
 entraxe = 32;

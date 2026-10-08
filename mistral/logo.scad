@@ -1,5 +1,5 @@
 include <BOSL2/std.scad>
-include <constants.scad>
+include <../lib/print-settings.scad>
 
 $size=20;
 $thick=1;

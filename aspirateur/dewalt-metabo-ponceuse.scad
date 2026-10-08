@@ -1,5 +1,5 @@
 include <BOSL2/std.scad>
-include <constants.scad>
+include <config.scad>
 include <dewalt.scad>
 
 module metabo_ponceuse() {

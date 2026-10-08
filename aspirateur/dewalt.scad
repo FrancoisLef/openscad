@@ -1,5 +1,5 @@
 include <BOSL2/std.scad>
-include <constants.scad>
+include <config.scad>
 
 // ------------------------------------------------------------------------
 // DEWALT DCV584L portable vacuum

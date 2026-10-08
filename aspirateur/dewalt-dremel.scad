@@ -1,5 +1,5 @@
 include <BOSL2/std.scad>
-include <constants.scad>
+include <config.scad>
 
 $d_margin = 0.5;
 

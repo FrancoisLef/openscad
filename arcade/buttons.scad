@@ -1,6 +1,6 @@
 include <BOSL2/std.scad>
 include <BOSL2/walls.scad>
-include <constants.scad>
+include <../lib/print-settings.scad>
 
 //----------------
 // Arcade joystick Zippy

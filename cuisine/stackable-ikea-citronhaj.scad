@@ -1,6 +1,6 @@
 include <BOSL2/std.scad>
 include <BOSL2/walls.scad>
-include <constants.scad>
+include <../lib/print-settings.scad>
 
 module citronhaj_container(anchor = [ 0, 0, 0 ])
 {

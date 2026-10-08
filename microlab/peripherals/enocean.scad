@@ -1,4 +1,4 @@
-include <../constants.scad>
+include <../../lib/print-settings.scad>
 include <BOSL2/std.scad>
 
 //------------------------------------------------------------------------
