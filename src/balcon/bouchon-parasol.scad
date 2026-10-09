@@ -1,7 +1,7 @@
 include <BOSL2/std.scad>
 include <BOSL2/walls.scad>
 include <BOSL2/screws.scad>
-include <../lib/print-settings.scad>
+include <../_lib/print-settings.scad>
 
 exterior_diameter = 35.5;
 interior_diameter = 31.5;

@@ -86,7 +86,7 @@ check_model() {
 
 list_models() {
   find src \
-    -path 'src/lib' -prune -o \
+    -path 'src/_lib' -prune -o \
     -type f -name '*.scad' ! -name 'config.scad' -print |
     sort
 }
@@ -126,7 +126,11 @@ export_model() {
   binary="$(openscad_bin)"
 
   printf 'Exporting %s to %s\n' "$model" "$output"
-  run_openscad "$binary" --render -o "$output" "$model"
+  if [[ "$format" == png ]]; then
+    run_openscad "$binary" --render --autocenter --viewall --projection o --imgsize 480,360 -o "$output" "$model"
+  else
+    run_openscad "$binary" --render -o "$output" "$model"
+  fi
   printf '%s\n' "$output"
 }
 

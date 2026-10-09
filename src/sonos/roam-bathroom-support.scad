@@ -1,6 +1,6 @@
 include <BOSL2/std.scad>
 include <BOSL2/walls.scad>
-include <../lib/print-settings.scad>
+include <../_lib/print-settings.scad>
 
 __HEATER_TUBE_DIAMETER = 23;
 __HEATER_TUBE_SPACING = 20;

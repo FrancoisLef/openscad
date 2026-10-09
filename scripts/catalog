@@ -1,0 +1,192 @@
+#!/usr/bin/env python3
+"""Generate GitHub-ready model previews and the README visual catalog."""
+from __future__ import annotations
+
+import html
+import shutil
+import subprocess
+import sys
+import tempfile
+from collections import defaultdict
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+DOCS = ROOT / "docs"
+README = ROOT / "README.md"
+PREVIEWS = DOCS / "previews"
+PREVIOUS_PREVIEWS = DOCS / ".previews-previous"
+START = "<!-- visual-catalog:start -->"
+END = "<!-- visual-catalog:end -->"
+THUMBNAIL_WIDTH = 280
+
+SPECIAL_NAMES = {
+    "aqara": "Aqara",
+    "citronhaj": "Citronhaj",
+    "dewalt": "DeWalt",
+    "dremel": "Dremel",
+    "enocean": "EnOcean",
+    "homeassistant": "Home Assistant",
+    "ikea": "IKEA",
+    "makita": "Makita",
+    "netatmo": "Netatmo",
+    "rpi4": "Raspberry Pi 4",
+    "rpi5": "Raspberry Pi 5",
+    "sonos": "Sonos",
+    "tahoma": "Tahoma",
+}
+
+
+def title(value: str) -> str:
+    return " ".join(
+        SPECIAL_NAMES.get(word.lower(), word.capitalize())
+        for word in value.replace("_", "-").split("-")
+    )
+
+
+def model_paths() -> list[Path]:
+    result = subprocess.run(
+        ["./scripts/scad", "list"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode:
+        sys.stderr.write(result.stdout)
+        sys.stderr.write(result.stderr)
+        raise RuntimeError("could not list OpenSCAD models")
+    return [ROOT / line for line in result.stdout.splitlines() if line]
+
+
+def render_preview(model: Path, preview_root: Path) -> Path | None:
+    relative = model.relative_to(ROOT / "src")
+    output = preview_root / relative.with_suffix(".png")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    result = subprocess.run(
+        ["./scripts/scad", "export", "png", str(model.relative_to(ROOT)), str(output)],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+    relative_model = model.relative_to(ROOT)
+    if result.returncode:
+        sys.stderr.write(result.stdout)
+        sys.stderr.write(result.stderr)
+        raise RuntimeError(f"could not render {relative_model}")
+
+    print(f"Rendered {relative_model}")
+    for line in result.stdout.splitlines():
+        if line.startswith(("WARNING:", "DEPRECATED:", "CGAL error:")):
+            print(f"{relative_model}: {line}")
+    if result.stderr:
+        sys.stderr.write(result.stderr)
+
+    # Helper-only modules produce an empty PNG and no top-level-object summary.
+    if "Top level object is" not in result.stdout:
+        output.unlink(missing_ok=True)
+        return None
+    return output
+
+
+def project_and_label(model: Path) -> tuple[str, str, str]:
+    relative = model.relative_to(ROOT / "src").with_suffix("")
+    project = title(relative.parts[0])
+    label = " · ".join(title(part) for part in relative.parts[1:])
+    return project, label, relative.as_posix()
+
+
+def card(model: Path) -> str:
+    _, label, relative = project_and_label(model)
+    source = f"src/{relative}.scad"
+    preview = f"docs/previews/{relative}.png"
+    safe_label = html.escape(label)
+    return "\n".join(
+        [
+            '<td width="50%" align="center">',
+            f'  <a href="{source}"><img src="{preview}" alt="Preview of {safe_label}" width="{THUMBNAIL_WIDTH}"></a><br>',
+            f'  <a href="{source}"><strong>{safe_label}</strong></a>',
+            "</td>",
+        ]
+    )
+
+
+def catalog_markdown(models: list[Path]) -> str:
+    groups: dict[str, list[Path]] = defaultdict(list)
+    for model in models:
+        project, _, _ = project_and_label(model)
+        groups[project].append(model)
+
+    lines = [
+        "## Visual catalog",
+        "",
+        "<sub>Generated with `make catalog`. Expand a project to browse its printable models.</sub>",
+        "",
+    ]
+    for project in sorted(groups):
+        entries = sorted(groups[project])
+        count = len(entries)
+        noun = "model" if count == 1 else "models"
+        lines.extend(
+            [
+                "<details>",
+                f"<summary><strong>{html.escape(project)}</strong> · {count} {noun}</summary>",
+                "",
+                "<table>",
+            ]
+        )
+        for offset in range(0, count, 2):
+            lines.extend(["<tr>", card(entries[offset])])
+            lines.append(card(entries[offset + 1]) if offset + 1 < count else '<td width="50%"></td>')
+            lines.append("</tr>")
+        lines.extend(["</table>", "", "</details>", ""])
+    return "\n".join(lines).rstrip()
+
+
+def update_readme(catalog: str) -> None:
+    content = README.read_text()
+    try:
+        before, remainder = content.split(START, 1)
+        _, after = remainder.split(END, 1)
+    except ValueError as error:
+        raise RuntimeError(f"README markers {START} and {END} are required") from error
+    README.write_text(f"{before}{START}\n{catalog}\n{END}{after}")
+
+
+def replace_previews(generated: Path) -> None:
+    if PREVIOUS_PREVIEWS.exists():
+        shutil.rmtree(PREVIOUS_PREVIEWS)
+    if PREVIEWS.exists():
+        PREVIEWS.rename(PREVIOUS_PREVIEWS)
+    generated.rename(PREVIEWS)
+    if PREVIOUS_PREVIEWS.exists():
+        shutil.rmtree(PREVIOUS_PREVIEWS)
+
+
+def main() -> int:
+    DOCS.mkdir(exist_ok=True)
+    rendered_models: list[Path] = []
+    with tempfile.TemporaryDirectory(prefix=".catalog-", dir=DOCS) as temporary:
+        preview_root = Path(temporary) / "previews"
+        for model in model_paths():
+            if render_preview(model, preview_root) is not None:
+                rendered_models.append(model)
+        if not rendered_models:
+            raise RuntimeError("no renderable models found")
+        replace_previews(preview_root)
+        update_readme(catalog_markdown(rendered_models))
+
+    print(f"Generated {len(rendered_models)} previews in {PREVIEWS.relative_to(ROOT)}")
+    return 0
+
+
+if __name__ == "__main__":
+    if len(sys.argv) == 2 and sys.argv[1] in {"-h", "--help"}:
+        print("Usage: scripts/catalog\n\nRegenerate docs/previews/ and the visual catalog in README.md.")
+        raise SystemExit(0)
+    if len(sys.argv) != 1:
+        print("Usage: scripts/catalog", file=sys.stderr)
+        raise SystemExit(2)
+    try:
+        raise SystemExit(main())
+    except RuntimeError as error:
+        print(f"error: {error}", file=sys.stderr)
+        raise SystemExit(1)

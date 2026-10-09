@@ -14,11 +14,11 @@ reviewable export.
 Identify the part's purpose, mating interfaces, critical dimensions, print
 orientation, and output expected by the user. Inspect neighboring models before
 introducing a new pattern. Keep local dimensions in the model, project-shared
-values in `src/<project>/config.scad`, and cross-project rules in `src/lib/`.
+values in `src/<project>/config.scad`, and cross-project rules in `src/_lib/`.
 
 Choose a small module interface that exposes useful dimensions and options while
 hiding placement, anchors, cuts, and clearance implementation. New models use
-BOSL2 and include the shared `src/lib/print-settings.scad` by relative path
+BOSL2 and include the shared `src/_lib/print-settings.scad` by relative path
 (normally `<../lib/print-settings.scad>`) unless the project already has a
 `config.scad`.
 
@@ -39,7 +39,9 @@ make export MODEL=path/to/model.scad FORMAT=png
 
 Inspect generated PNGs when visual geometry, orientation, or assembly fit is
 part of the request. Generated files belong under `build/` and are not committed
-unless the user explicitly asks for a curated artifact.
+unless the user explicitly asks for a curated artifact. When a renderable
+model is added or visually changed, run `make catalog` so the committed GitHub
+preview and generated README catalog stay current.
 
 ## Fit and print review
 

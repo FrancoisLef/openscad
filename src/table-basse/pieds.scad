@@ -1,5 +1,5 @@
 include <BOSL2/std.scad>
-include <../lib/print-settings.scad>
+include <../_lib/print-settings.scad>
 
 diametre_externe = 38.5;
 longueur_pied = 185;

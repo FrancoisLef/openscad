@@ -7,7 +7,7 @@ dependencies, or repository tooling.
 
 - A project lives under `src/<project>/`. A `.scad` file that contains top-level
   geometry is a renderable entry point.
-- `src/lib/` holds cross-project modules named for one responsibility. It is not a
+- `src/_lib/` holds cross-project modules named for one responsibility. It is not a
   collection of project-specific dimensions.
 - `src/<project>/config.scad` exists only for values shared by that project. Keep
   dimensions used by a single part next to that part.
@@ -28,6 +28,7 @@ make models
 make check MODEL=src/rpi5-case/rpi5-case.scad
 make export MODEL=src/rpi5-case/rpi5-case.scad FORMAT=stl
 make check-all
+make catalog
 ```
 
 - Run `make check` for every changed renderable entry point. It compiles to a
@@ -47,10 +48,12 @@ make check-all
 - For a new printed part, establish the printing orientation, clearance/
   tolerance assumptions, wall thickness, and fastener interfaces before
   finalizing the geometry.
-- Shared render defaults live in `src/lib/print-settings.scad`. A model needing
+- Shared render defaults live in `src/_lib/print-settings.scad`. A model needing
   project-wide overrides includes its project `config.scad` instead.
-- Keep intentional source images under `src/<project>/` or `docs/img/`; keep
-  generated previews and exports under `build/`.
+- Keep intentional source images under `src/<project>/`; keep
+  generated exports under `build/`. The committed visual catalog lives in
+  `docs/previews/` and is regenerated with `make catalog`; do not edit its
+  README section or preview images by hand.
 
 ## Focused skill
 
