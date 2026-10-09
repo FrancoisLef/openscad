@@ -364,10 +364,9 @@
 </details>
 <!-- visual-catalog:end -->
 
-<details>
-<summary><strong>Development notes</strong></summary>
+## Development notes
 
-## Prerequisites
+### Prerequisites
 
 Install OpenSCAD and make its CLI available as `openscad`. The repository pins
 its BOSL v1 and BOSL2 dependencies as submodules, so a fresh clone only needs:
@@ -381,7 +380,7 @@ make doctor
 repository commands add that directory to `OPENSCADPATH` automatically.
 
 
-## Organization
+### Organization
 
 - `src/_lib/` contains shared, responsibility-named modules.
   `src/_lib/print-settings.scad`
@@ -398,7 +397,7 @@ repository commands add that directory to `OPENSCADPATH` automatically.
   responsibility, such as `print-settings.scad`, `fasteners.scad`, or
   `profiles.scad`.
 
-### Adding a BOSL2 model
+#### Adding a BOSL2 model
 
 Use the shared defaults directly when no project-specific settings are needed:
 
@@ -414,7 +413,7 @@ include <BOSL2/std.scad>
 include <config.scad>
 ```
 
-## Development
+### Development
 
 OpenSCAD must be available as `openscad` on `PATH` (or supplied through
 `OPENSCAD_BIN`). The repository pins legacy BOSL and BOSL2 as submodules;
@@ -432,5 +431,3 @@ make catalog
 
 Exports are written below `build/`, which is ignored by Git. The agent workflow
 and OpenSCAD/BOSL2 conventions are defined in [`AGENTS.md`](AGENTS.md).
-
-</details>
