@@ -67,7 +67,7 @@
 </details>
 
 <details>
-<summary><strong>Caches</strong> · 3 models</summary>
+<summary><strong>Caches</strong> · 4 models</summary>
 
 <table>
 <tr>
@@ -82,10 +82,13 @@
 </tr>
 <tr>
 <td width="50%" align="center">
+  <a href="src/caches/cache-repeteur-orange-wifi-7.scad"><img src="docs/previews/caches/cache-repeteur-orange-wifi-7.png" alt="Preview of Cache Repeteur Orange Wifi 7" width="280"></a><br>
+  <a href="src/caches/cache-repeteur-orange-wifi-7.scad"><strong>Cache Repeteur Orange Wifi 7</strong></a>
+</td>
+<td width="50%" align="center">
   <a href="src/caches/cache-ventilateur.scad"><img src="docs/previews/caches/cache-ventilateur.png" alt="Preview of Cache Ventilateur" width="280"></a><br>
   <a href="src/caches/cache-ventilateur.scad"><strong>Cache Ventilateur</strong></a>
 </td>
-<td width="50%"></td>
 </tr>
 </table>
 
