@@ -67,28 +67,35 @@
 </details>
 
 <details>
-<summary><strong>Caches</strong> · 4 models</summary>
+<summary><strong>Caches</strong> · 5 models</summary>
 
 <table>
 <tr>
 <td width="50%" align="center">
-  <a href="src/caches/cache-cave-vin.scad"><img src="docs/previews/caches/cache-cave-vin.png" alt="Preview of Cache Cave Vin" width="280"></a><br>
-  <a href="src/caches/cache-cave-vin.scad"><strong>Cache Cave Vin</strong></a>
+  <a href="src/caches/cache-cable.scad"><img src="docs/previews/caches/cache-cable.png" alt="Preview of Cache Cable" width="280"></a><br>
+  <a href="src/caches/cache-cable.scad"><strong>Cache Cable</strong></a>
 </td>
 <td width="50%" align="center">
-  <a href="src/caches/cache-chargeur-pile.scad"><img src="docs/previews/caches/cache-chargeur-pile.png" alt="Preview of Cache Chargeur Pile" width="280"></a><br>
-  <a href="src/caches/cache-chargeur-pile.scad"><strong>Cache Chargeur Pile</strong></a>
+  <a href="src/caches/cache-cave-vin.scad"><img src="docs/previews/caches/cache-cave-vin.png" alt="Preview of Cache Cave Vin" width="280"></a><br>
+  <a href="src/caches/cache-cave-vin.scad"><strong>Cache Cave Vin</strong></a>
 </td>
 </tr>
 <tr>
 <td width="50%" align="center">
+  <a href="src/caches/cache-chargeur-pile.scad"><img src="docs/previews/caches/cache-chargeur-pile.png" alt="Preview of Cache Chargeur Pile" width="280"></a><br>
+  <a href="src/caches/cache-chargeur-pile.scad"><strong>Cache Chargeur Pile</strong></a>
+</td>
+<td width="50%" align="center">
   <a href="src/caches/cache-repeteur-orange-wifi-7.scad"><img src="docs/previews/caches/cache-repeteur-orange-wifi-7.png" alt="Preview of Cache Repeteur Orange Wifi 7" width="280"></a><br>
   <a href="src/caches/cache-repeteur-orange-wifi-7.scad"><strong>Cache Repeteur Orange Wifi 7</strong></a>
 </td>
+</tr>
+<tr>
 <td width="50%" align="center">
   <a href="src/caches/cache-ventilateur.scad"><img src="docs/previews/caches/cache-ventilateur.png" alt="Preview of Cache Ventilateur" width="280"></a><br>
   <a href="src/caches/cache-ventilateur.scad"><strong>Cache Ventilateur</strong></a>
 </td>
+<td width="50%"></td>
 </tr>
 </table>
 
