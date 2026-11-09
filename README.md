@@ -271,6 +271,21 @@
 </details>
 
 <details>
+<summary><strong>Salle De Bain</strong> · 1 model</summary>
+
+<table>
+<tr>
+<td width="50%" align="center">
+  <a href="src/salle-de-bain/crochet-douche.scad"><img src="docs/previews/salle-de-bain/crochet-douche.png" alt="Preview of Crochet Douche" width="280"></a><br>
+  <a href="src/salle-de-bain/crochet-douche.scad"><strong>Crochet Douche</strong></a>
+</td>
+<td width="50%"></td>
+</tr>
+</table>
+
+</details>
+
+<details>
 <summary><strong>Score Babyfoot</strong> · 1 model</summary>
 
 <table>
