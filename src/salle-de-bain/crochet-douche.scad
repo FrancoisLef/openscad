@@ -1,7 +1,7 @@
 include <BOSL2/std.scad>
 include <../_lib/print-settings.scad>
 
-largeur = 8;
+largeur = 8 * 3;
 epaisseur = 4;
 
 epaisseur_paroi = 19.5;
